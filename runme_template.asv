@@ -8,7 +8,7 @@ parameterize_file = './Greenland.par';
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Mesh
-hmin = 1000;
+hmin = 500;
 hmax = 20000;
 
 
