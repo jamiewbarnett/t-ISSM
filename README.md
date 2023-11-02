@@ -56,10 +56,13 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 ## Step 4: Spin it up
 
 
+# Task 3: Design and run some transient simulations!
 
+# Task 4: Analyse your results
 
+# Task 5: Make a presentation
 
-
+# Task 6: Buy gifts for us to say thanks <3
 
 
 glacier go bye-bye 
