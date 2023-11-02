@@ -1,4 +1,4 @@
-steps = [1:3];
+steps = [1:4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -11,16 +11,13 @@ glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq'
 switch glacier
     case{'79'}
         exp_file = './Exp/79.exp';
+        hmin = 750;
+        hmax = 20000;
         %flowline_file = ''
-        return
     case{'Helheim'}
-        return
     case{'Kangerlussuaq'}
-        return
     case{'Petermann'}
-        return
     case{'Jakobshavn'}
-        return
     case{'Tracy+Heilprin'}
         return
 end
@@ -31,13 +28,9 @@ parameterize_file = './Greenland.par';
 %%
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
-%Mesh
-hmin = 1000;
-hmax = 20000;
-
 
 %Transient
-nyrs = 1;
+nyrs = 10;
 
 %Timestepping
 timestep = 0.05;
@@ -71,22 +64,22 @@ if perform(org,'Mesh')
     md=bamg(md,'domain',exp_file,'hmax',500);
 
 
-    disp('Refining mesh to bedmachine')
-    %Interpolate bedrock data from bedmachine onto mesh
-    md.geometry.bed = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'bed','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
-    
-
-    hmaxVertices = NaN*ones(md.mesh.numberofvertices,1);
-    in = ContourToMesh(md.mesh.elements,md.mesh.x,md.mesh.y,exp_file,'node',1);
-    hmaxVertices(find(in)) = hmax;
-
-    %Refine mesh with bedmachine data
-    md = bamg(md,'hmin', hmin, 'hmax', hmax, ...
-        'field', md.geometry.bed, 'gradation', 1.1, 'err', 75, ...
-        'anisomax', 1., 'hmaxVertices', hmaxVertices);
-
-    %Interpolate bedrock data again onto new mesh
-    md.geometry.bed = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'bed','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+%     disp('Refining mesh to bedmachine')
+%     %Interpolate bedrock data from bedmachine onto mesh
+%     md.geometry.bed = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'bed','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+%     
+% 
+%     hmaxVertices = NaN*ones(md.mesh.numberofvertices,1);
+%     in = ContourToMesh(md.mesh.elements,md.mesh.x,md.mesh.y,exp_file,'node',1);
+%     hmaxVertices(find(in)) = hmax;
+% 
+%     %Refine mesh with bedmachine data
+%     md = bamg(md,'hmin', hmin, 'hmax', hmax, ...
+%         'field', md.geometry.bed, 'gradation', 1.1, 'err', 75, ...
+%         'anisomax', 1., 'hmaxVertices', hmaxVertices);
+% 
+%     %Interpolate bedrock data again onto new mesh
+%     md.geometry.bed = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'bed','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
 
     disp('Refining mesh to velocities')
 
@@ -115,7 +108,7 @@ if perform(org,'Mesh')
 
     %Define refinement everywhere where vel is fast (> vel_threshold)
     hmaxVertices=NaN*ones(md.mesh.numberofvertices,1);
-    in=find(md.inversion.vel_obs>300); %find elemens where observed vel is fast >300m/yr
+    in=find(md.inversion.vel_obs>500); %find elemens where observed vel is fast >500m/yr
     hmaxVertices(in)=hmin;
 
     disp('Refining fjord area')
@@ -127,8 +120,8 @@ if perform(org,'Mesh')
     
     %Remesh again, adding refined region
     md=bamg(md,'hmin',hmin,'hmax',hmax,'field',...	
-	    md.geometry.bed,...
-	    'gradation',1.1,'err',50,'anisomax',1.,'hmaxVertices',hmaxVertices);
+	    md.inversion.vel_obs,...
+	    'gradation',1.1,'err',25,'anisomax',1.,'hmaxVertices',hmaxVertices);
 
     %Re-interpolate Velocities and Plot mesh
     md.inversion.vx_obs = InterpFromGridToMesh(x_dom,y_dom,(vx_dom),md.mesh.x,md.mesh.y,0);
@@ -341,13 +334,6 @@ if perform(org,'Spin_Up')
            [0:1/12:(nyrs_smb)-(1/12)]]; % 1/12 used with monthly input. Change both instances to e.g. 1 for yearly data 
 
 
-
-    %Make sure we're using correct flow equation
-    if isHO == 1
-	    md = setflowequation(md,'HO','all');
-    else
-	    md = setflowequation(md,'SSA','all');
-    end
     
     %Make sure bed is below base
     pos=find(md.geometry.bed>md.geometry.base);
@@ -422,13 +408,10 @@ if perform(org,'Spin_Up')
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
 
-
-
     md.timestepping.final_time=md.timestepping.start_time+nyrs;
 
     %Output options
-    if md.transient.ismovingfront == 1
-		md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
+	md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
 							'IceVolume','IceVolumeAboveFloatation',...
 							'IceVolumeAboveFloatationScaled','GroundedAreaScaled',...
 							'MaskOceanLevelset','MaskIceLevelset',...
@@ -440,25 +423,11 @@ if perform(org,'Spin_Up')
 							'CalvingMeltingrate','TotalCalvingMeltingFluxLevelset','IcefrontMassFluxLevelset',...
 							'TotalCalvingFluxLevelset','TotalGroundedBmb',...
 							'Calvingratex','Calvingratey','CalvingCalvingrate'};
-	
-
-    else
-	    md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
-						    'IceVolume','IceVolumeAboveFloatation',...
-						    'IceVolumeAboveFloatationScaled','GroundedAreaScaled',...
-						    'FloatingAreaScaled','IceMass',...
-						    'GroundedArea','FloatingArea','TotalFloatingBmb',...
-						    'BasalforcingsFloatingiceMeltingRate',...
-						    'GroundinglineMassFlux'}; %Gt/yr
-    end
-    
-    % 					'GroundinglineHeight',...
-    % 							'StrainRatexx','StrainRateyy','StrainRatexy',...
-    % 							'StrainRateparallel','StrainRateperpendicular'};
     
 	    md.verbose=verbose('solution',true,'module',false,'convergence',false);
 
         md.toolkits=toolkits();
+        md.toolkits.DefaultAnalysis=bcgslbjacobioptions();
 		md.cluster=generic('name',oshostname,'np',4);
 
 		%Solve
