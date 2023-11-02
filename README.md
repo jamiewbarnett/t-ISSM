@@ -31,6 +31,9 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se for help
 - The minimum and maximum mesh resolutions are pre-set for each glacier, so you do not need to change these
 - We use present day observed surface velocities to determine where the maximum mesh resolution is applied - with a higher mesh resolution being used in areas with faster flow
 
+<img width="1582" alt="Screenshot 2023-11-02 at 14 42 34" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/d4eff310-1459-4eef-be7b-5b4d19758579">
+
+
 ## Step 2: Parameterise it
 
 ## Step 3: Invert it/ run the stress balance
