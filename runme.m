@@ -1,26 +1,30 @@
-steps = [1:4];
+steps = [4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
 
-glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq'
+glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
-    case{'79'}
+    case{'79'} %Jamie
         exp_file = './Exp/79.exp';
         hmin = 750;
         hmax = 20000;
         fjordmesh = 1000;
         %flowline_file = ''
-    case{'Helheim'}
-    case{'Kangerlussuaq'}
-    case{'Petermann'}
-    case{'Jakobshavn'}
-    case{'Tracy+Heilprin'}
-        return
+    case{'Helheim'}%Jamie
+    case{'Kangerlussuaq'}%Jamie
+    case{'Petermann'}%Felis
+    case{'Jakobshavn'} %Felis
+    case{'Tracy+Heilprin'}%Felis
+    case{'Ryder'}
+        exp_file = './Exp/ryder.exp';
+        hmin = 500;
+        hmax = 10000;
+        fjordmesh = 500;
 end
 
 
@@ -31,7 +35,7 @@ parameterize_file = './Greenland.par';
 
 
 %Transient
-nyrs = 10;
+nyrs = 1;
 
 %Timestepping
 timestep = 0.05;
@@ -128,10 +132,10 @@ if perform(org,'Parameterization')
 
     md = parameterize(md,parameterize_file);
 
-%     plotmodel(md,'data',md.mask.ocean_levelset, 'title', 'Ice/Ocean Mask', ...
-%         'data', md.geometry.thickness, 'title', 'Thickness', ...
-%         'data', md.geometry.bed, 'title', 'Bedrock', ...
-%         'data', 'BC','caxis#1',[-1,1])
+    plotmodel(md,'data',md.mask.ocean_levelset, 'title', 'Ice/Ocean Mask', ...
+        'data', md.geometry.thickness, 'title', 'Thickness (m)', ...
+        'data', md.geometry.bed, 'title', 'Bedrock (m)', ...
+        'data', 'BC','caxis#1',[-1,1])
 
     savemodel(org,md);
 
@@ -254,13 +258,13 @@ if perform(org,'Stressbalance')
 
 	%Test plot
 	plotmodel(md,...
- 		'data',md.inversion.vel_obs,'title','Observed velocity',...
- 		'data',md.results.StressbalanceSolution.Vel,'title','Modeled Velocity',...
- 		'data',md.geometry.bed,'title','Bed elevation',...
+ 		'data',md.inversion.vel_obs,'title','Observed velocity (m/yr)',...
+ 		'data',md.results.StressbalanceSolution.Vel,'title','Modeled Velocity (m/yr)',...
+ 		'data',md.geometry.bed,'title','Bed elevation (m)',...
  		'data',md.friction.coefficient,'title','Friction Coefficient',...
- 		'colorbar#all','on','colorbartitle#1-2','(m/yr)',...
+ 		'colorbar#all','on',...
  		'caxis#1-2',([1.5,1500]),...
- 		'colorbartitle#3','(m)', 'log#1-2',10);
+ 		'log#1-2',10);
 
     savemodel(org,md);
 end
@@ -270,8 +274,17 @@ end
 
 if perform(org,'Spin_Up')
 
-    md = loadmodel(org,'Stressbalance');
+    %Historical SMB... MAR average 1950 to 2000
 
+    %Simple basal melt... Linear 10 to 0?
+
+    % 1. no calving
+    % 2. calving rate
+    % 3. Max migartion
+    % 4. No moving front
+
+
+    md = loadmodel(org,'Stressbalance');
 
     %Intial Velocities
     md.initialization.vx = md.results.StressbalanceSolution.Vx;
@@ -289,15 +302,13 @@ if perform(org,'Spin_Up')
 	%Additional options
 	md.inversion.iscontrol=0;
     
-    
-   disp('Reading and interpolating SMB data')
-
+    disp('Reading and interpolating SMB data')
     
     md.smb.mass_balance = [];
     smbMAR = [];
 
-    for yy=1:(nyrs_smb*12) % Monthly data
-        smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-ssp585-combined.nc');
+    for yy=1:(40*12) % Monthly data
+        smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
         smbMAR = [smbMAR smboutput];
         %progress = sprintf('Read %d timesteps out of %d',yy, nyrs_smb*12);
         %disp(progress)
@@ -313,12 +324,10 @@ if perform(org,'Spin_Up')
         end
     end
           
-    md.smb.mass_balance = ...
-           [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
-           [0:1/12:(nyrs_smb)-(1/12)]]; % 1/12 used with monthly input. Change both instances to e.g. 1 for yearly data 
+    md.smb.mass_balance = smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); 
+    md.smb.mass_balance = mean(md.smb.mass_balance,2);
 
 
-    
     %Make sure bed is below base
     pos=find(md.geometry.bed>md.geometry.base);
     md.geometry.base(pos)=md.geometry.bed(pos);
@@ -365,7 +374,6 @@ if perform(org,'Spin_Up')
     
 	    %Stress threshold
 	    md.calving.stress_threshold_groundedice=1e6; %default 1 MPa = 1e6 Pa
-    
 	    md.calving.stress_threshold_floatingice=300e3; %default Petermann 300 kPa, default ISSM 150 kPa
 	    disp(['Calving sigma_max floatingice set to ' num2str(md.calving.stress_threshold_floatingice./1000)  ' kPa'])
     
