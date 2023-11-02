@@ -25,7 +25,7 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 %%%% Model name %%%%
 ModelName = 'NEWTEST';
-org = organizer('repository','Models','prefix',[ModelName num2str(nyrs) 'years'],'steps',steps);
+org = organizer('repository','Outputs','prefix',[ModelName num2str(nyrs) 'years'],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -259,16 +259,12 @@ if perform(org,'Stressbalance')
 end
 
 %%
-%% %%%%%%%%%%%%%%% Step 4: Transient %%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%% Step 4: Spin_UP %%%%%%%%%%%%%
 
-if perform(org,'Transient')
+if perform(org,'Spin_Up')
 
     md = loadmodel(org,'Stressbalance');
 
-    if isrestart == 1
-        %Initialize geometry and update mask from previous transient results
-        md = transientrestart(md);
-    end
 
     %Intial Velocities
     md.initialization.vx = md.results.StressbalanceSolution.Vx;
@@ -341,24 +337,21 @@ if perform(org,'Transient')
     md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
     %%% Set levelset options %%%
     if isresetlevelset == 1
-        if isHO == 1
-		    %do nothing
-	    else
-		    md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
-    
-		    %Get mask from BedMachine
-		    M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
-		    pos=find(M<2);
-		    md.mask.ice_levelset(pos)=+1; %set levelset for no-ice vertices
-		    %remove 0 in ice_levelset (advection will fail if used)
-		    md.mask.ice_levelset(find(md.mask.ice_levelset==0))=-1;
-    
-		    %make it a signed distance
-		    md.mask.ice_levelset = reinitializelevelset(md,md.mask.ice_levelset);
-    
-		    % Reset levelset boundary conditions on domain boundary
-		    md.levelset.spclevelset(find(md.mesh.vertexonboundary)) = md.mask.ice_levelset(find(md.mesh.vertexonboundary));
-        end
+
+	    md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
+
+	    %Get mask from BedMachine
+	    M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+	    pos=find(M<2);
+	    md.mask.ice_levelset(pos)=+1; %set levelset for no-ice vertices
+	    %remove 0 in ice_levelset (advection will fail if used)
+	    md.mask.ice_levelset(find(md.mask.ice_levelset==0))=-1;
+
+	    %make it a signed distance
+	    md.mask.ice_levelset = reinitializelevelset(md,md.mask.ice_levelset);
+
+	    % Reset levelset boundary conditions on domain boundary
+	    md.levelset.spclevelset(find(md.mesh.vertexonboundary)) = md.mask.ice_levelset(find(md.mesh.vertexonboundary));
     else 
 	    %dont touch the spclevelset, just keep what is from the previous model and do nothing here
     end
