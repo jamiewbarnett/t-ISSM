@@ -1,19 +1,21 @@
-steps = [4];
+steps = [1:4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
 
-glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
     case{'79'} %Jamie
         exp_file = './Exp/79.exp';
-        hmin = 750;
+        hmin = 1000;
         hmax = 20000;
         fjordmesh = 1000;
+        sigma_grounded = 1e6;
+        sigma_floating = 300e3;
         %flowline_file = ''
     case{'Helheim'}%Jamie
     case{'Kangerlussuaq'}%Jamie
@@ -35,7 +37,7 @@ parameterize_file = './Greenland.par';
 
 
 %Transient
-nyrs = 1;
+nyrs = 50;
 
 %Timestepping
 timestep = 0.05;
@@ -53,7 +55,7 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 %%%% Model name %%%%
 ModelName = 'NEWTEST';
-org = organizer('repository','Outputs','prefix',[ModelName num2str(nyrs) 'years'],'steps',steps);
+org = organizer('repository','Outputs','prefix',[glacier ModelName num2str(nyrs) 'years'],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -373,8 +375,8 @@ if perform(org,'Spin_Up')
 	    md.calving=calvingvonmises(); %activate von mises calving law
     
 	    %Stress threshold
-	    md.calving.stress_threshold_groundedice=1e6; %default 1 MPa = 1e6 Pa
-	    md.calving.stress_threshold_floatingice=300e3; %default Petermann 300 kPa, default ISSM 150 kPa
+	    md.calving.stress_threshold_groundedice= sigma_grounded; %default 1 MPa = 1e6 Pa
+	    md.calving.stress_threshold_floatingice= sigma_floating; %default Petermann 300 kPa, default ISSM 150 kPa
 	    disp(['Calving sigma_max floatingice set to ' num2str(md.calving.stress_threshold_floatingice./1000)  ' kPa'])
     
 	    md.calving.min_thickness=50; %m, default NaN
@@ -393,6 +395,7 @@ if perform(org,'Spin_Up')
 
     %Timestepping options
 
+    md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
     md.timestepping.time_step = timestep;
     md.settings.output_frequency = outfreq; %yearly
