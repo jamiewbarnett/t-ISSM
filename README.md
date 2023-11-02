@@ -23,7 +23,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se for help
 
 - Meshing the glacier is 'Step 1' in the runme script - to run this step, you should make sure the first line of the script looks like this:
 
-steps = [1];
+`steps = [1];`
 
 - Once this is set, you can run the script by either pressing the large 'Run' button at the top of the screen, or by executing 'runme' in the command window
 
