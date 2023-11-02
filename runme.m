@@ -13,6 +13,7 @@ switch glacier
         exp_file = './Exp/79.exp';
         hmin = 750;
         hmax = 20000;
+        fjordmesh = 1000;
         %flowline_file = ''
     case{'Helheim'}
     case{'Kangerlussuaq'}
@@ -64,23 +65,6 @@ if perform(org,'Mesh')
     md=bamg(md,'domain',exp_file,'hmax',500);
 
 
-%     disp('Refining mesh to bedmachine')
-%     %Interpolate bedrock data from bedmachine onto mesh
-%     md.geometry.bed = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'bed','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
-%     
-% 
-%     hmaxVertices = NaN*ones(md.mesh.numberofvertices,1);
-%     in = ContourToMesh(md.mesh.elements,md.mesh.x,md.mesh.y,exp_file,'node',1);
-%     hmaxVertices(find(in)) = hmax;
-% 
-%     %Refine mesh with bedmachine data
-%     md = bamg(md,'hmin', hmin, 'hmax', hmax, ...
-%         'field', md.geometry.bed, 'gradation', 1.1, 'err', 75, ...
-%         'anisomax', 1., 'hmaxVertices', hmaxVertices);
-% 
-%     %Interpolate bedrock data again onto new mesh
-%     md.geometry.bed = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'bed','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
-
     disp('Refining mesh to velocities')
 
     %Build grid & Velocity data
@@ -116,7 +100,7 @@ if perform(org,'Mesh')
     %Refine areas in the fjord (ocean) to hmin
     md.mask.ocean_levelset = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
     in = find(md.mask.ocean_levelset == 0);
-    hmaxVertices(in) = hmin;
+    hmaxVertices(in) = fjordmesh;
     
     %Remesh again, adding refined region
     md=bamg(md,'hmin',hmin,'hmax',hmax,'field',...	
