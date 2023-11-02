@@ -12,7 +12,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se for help
   - Tracy and Heilprin glaciers
  
 - Each group should choose a different glacier - and its first come first served, so let Jamie + Felicity know as soon as you have chosen your fave
-- Ryder glacier is only used for the in class example
+- Ryder glacier is only used for the in-class example
 
 # Task 2: Run model to spun-up state 
 
