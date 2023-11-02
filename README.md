@@ -46,9 +46,12 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 
 ## Step 3: Invert it/ run the stress balance
 
--`steps = [3];`
+- Set `steps = [3];`
 - The next step is to use observed surface velocities to invert for basal friction, whilst also solving for a Stressbalance solution of the glacier
 - Upon successful completion of this step, you should get output that looks similar to the example below:
+
+  <img width="1582" alt="Screenshot 2023-11-02 at 14 55 11" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/e67457d8-1221-476e-90a9-9402d0199b96">
+
 
 ## Step 4: Spin it up
 
