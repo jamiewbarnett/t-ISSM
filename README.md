@@ -37,14 +37,18 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 
 ## Step 2: Parameterise it
 
+- Set `steps = [2];`
 - In the parameterisation step, we use various observational datasets to set the **initial conditions** and **boundary conditions** for the glacier
 - All of these datasets are read in and applied to the glacier using the `Greenland.par` file
 - Upon successful completion of this step, you should get output that looks similar to the example below:
 
   <img width="1582" alt="Screenshot 2023-11-02 at 14 48 41" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/2d945cbe-7184-42a1-9198-09dc2b30b408">
 
-
 ## Step 3: Invert it/ run the stress balance
+
+-`steps = [3];`
+- The next step is to use observed surface velocities to invert for basal friction, whilst also solving for a Stressbalance solution of the glacier
+- Upon successful completion of this step, you should get output that looks similar to the example below:
 
 ## Step 4: Spin it up
 
