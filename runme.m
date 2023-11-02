@@ -1,10 +1,34 @@
 steps = [1:3];
 
-%%%%%%%%%%%%% Make mesh domain/exp file %%%%%%%%%%%%%%
 
-exp_file = './Exp/79.exp';
+%% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
+
+% Type the glacier you want to model below
+
+glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq'
+
+% Find correct exp and flowline files
+switch glacier
+    case{'79'}
+        exp_file = './Exp/79.exp';
+        %flowline_file = ''
+        return
+    case{'Helheim'}
+        return
+    case{'Kangerlussuaq'}
+        return
+    case{'Petermann'}
+        return
+    case{'Jakobshavn'}
+        return
+    case{'Tracy+Heilprin'}
+        return
+end
+
+
 parameterize_file = './Greenland.par';
 
+%%
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Mesh
@@ -19,8 +43,14 @@ nyrs = 1;
 timestep = 0.05;
 outfreq = 1/timestep; % Annual output
 
-%SMB Years
+%%%% SMB %%%%
 nyrs_smb = 2100-2099; % End and start year of dataset
+
+
+%%%% Basal Melt %%%%
+
+
+%%%% Calving %%%%
 
 
 %%%% Model name %%%%
