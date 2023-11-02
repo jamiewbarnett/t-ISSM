@@ -1,5 +1,5 @@
 # t-issm: Glacier fun with J-man and Felicity 
-## felicity.holmes@geo.su.se  jamie.barnett@geo.su.se
+Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se for help
 
 # Task 1: Choose your pokemon (glacier)
 
