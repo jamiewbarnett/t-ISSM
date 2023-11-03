@@ -56,7 +56,21 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 ## Step 4: Spin it up
 
 
-# Task 3: Design and run some transient simulations!
+# Task 3: Design and run some transient simulations
+
+- For the transient simulations, you need to decide as a group what you want to investigate
+- Examples of questions you could answer are things like:
+  - What are the differences in glacier behaviour up to 2050 under a low vs high emissions future scenario?
+  - Is the glacier more sensitive to changes in ocean thermal forcing or to changes in SMB?
+  - Under which climate scenarios does the glacier lose its floating ice tongue?
+ 
+- You need to think about which forcings you can change, and look at the datasets available
+- Some things you can change are SMB (e.g. different SSPs), basal melt under ice tongues, frontal melt along grounded termini, calving stress threshold
+- It is also a good idea to do a bit of reading about your chosen glacier to understand which type of question might be relevant and/or interesting
+
+- Once you have decided on the question(s) to investigate, you need to think about what forcings/parameters you need to change in the `runme` script, and how many simulations you want to run
+
+- Make sure to keep good notation about which simulations you run 
 
 # Task 4: Analyse your results
 
@@ -72,5 +86,4 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
     - Conclusions and what you would do next if you had more time
 
 - We will then have 5-10 minutes of questions after each presentation
-
-glacier go bye-bye 
+ 
