@@ -20,8 +20,29 @@ switch glacier
     case{'Helheim'}%Jamie
     case{'Kangerlussuaq'}%Jamie
     case{'Petermann'}%Felis
+        exp_file = '';
+        hmin = 500;
+        hmax = 10000;
+        fjordmesh = 500;
+        sigma_grounded = 1e6;
+        sigma_floating = 300e3;
+        %flowline_file = '';
     case{'Jakobshavn'} %Felis
+        exp_file = '';
+        hmin = 500;
+        hmax = 10000;
+        fjordmesh = 500;
+        sigma_grounded = 1e6;
+        sigma_floating = 300e3;
+        %flowline_file = '';
     case{'Tracy+Heilprin'}%Felis
+        exp_file = '';
+        hmin = 500;
+        hmax = 10000;
+        fjordmesh = 500;
+        sigma_grounded = 1e6;
+        sigma_floating = 300e3;
+        %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
         hmin = 500;
