@@ -62,7 +62,15 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 
 # Task 5: Make a presentation
 
-# Task 6: Buy gifts for us to say thanks <3
+- Each group should make a c. 20-25 minute presentation about their modelling project
+- Include the following in your presentations:
+    - Background on your glacier
+    - Scientific questions
+    - Model set-up xperimental design; how did your set up your model to address your chosen question(s)?
+      - Also include information on forcings here (e.g. SMB, melt rates)
+    - Results
+    - Conclusions and what you would do next if you had more time
 
+- We will then have 5-10 minutes of questions after each presentation
 
 glacier go bye-bye 
