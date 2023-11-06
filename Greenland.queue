@@ -1,0 +1,2 @@
+#!/bin/sh
+mpiexec -np 4 /Users/jamiebarnett/trunk-jpl//bin/issm.exe TransientSolution /Users/jamiebarnett/trunk-jpl//execution/Greenland-11-06-2023-14-55-28-4604 Greenland

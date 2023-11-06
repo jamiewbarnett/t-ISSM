@@ -15,9 +15,9 @@ switch glacier
         hmax = 20000;
         fjordmesh = 1000;
         sigma_grounded = 1e6;
-        sigma_floating = 600e3;
+        sigma_floating = 350e3;
         deep_melt = 50;
-        deep_depth = -600;
+        deep_depth = -500;
         upper_melt = 0;
         upper_depth = -50;
         %flowline_file = ''
