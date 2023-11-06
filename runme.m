@@ -408,10 +408,14 @@ if perform(org,'Spin_Up')
 
     %Basal Melt options
     % Fixed melt
-    md.basalforcings=basalforcings();
+    md.basalforcings=linearbasalforcings();
 	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
-	md.basalforcings.floatingice_melting_rate=10*ones(md.mesh.numberofvertices,1);
-	md.basalforcings.groundedice_melting_rate=zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.deepwater_melting_rate = 50;
+    md.basalforcings.deepwater_elevation = -600;
+    md.basalforcings.upperwater_melting_rate = 0;
+    md.basalforcings.upperwater_elevation = -50;
+    md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
 
 
     %Timestepping options
