@@ -1,4 +1,4 @@
-steps = [1:4];
+steps = [4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -16,6 +16,10 @@ switch glacier
         fjordmesh = 1000;
         sigma_grounded = 1e6;
         sigma_floating = 300e3;
+        deep_melt = 50;
+        deep_depth = -600;
+        upper_melt = 0;
+        upper_depth = -50;
         %flowline_file = ''
     case{'Helheim'}%Jamie
     case{'Kangerlussuaq'}%Jamie
@@ -410,10 +414,10 @@ if perform(org,'Spin_Up')
     % Fixed melt
     md.basalforcings=linearbasalforcings();
 	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
-	md.basalforcings.deepwater_melting_rate = 50;
-    md.basalforcings.deepwater_elevation = -600;
-    md.basalforcings.upperwater_melting_rate = 0;
-    md.basalforcings.upperwater_elevation = -50;
+	md.basalforcings.deepwater_melting_rate = deep_melt;
+    md.basalforcings.deepwater_elevation = deep_depth;
+    md.basalforcings.upperwater_melting_rate = upper_melt;
+    md.basalforcings.upperwater_elevation = upper_depth;
     md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
 	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
 
