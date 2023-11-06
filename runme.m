@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -15,13 +15,23 @@ switch glacier
         hmax = 20000;
         fjordmesh = 1000;
         sigma_grounded = 1e6;
-        sigma_floating = 350e3;
+        sigma_floating = 250e3;
         deep_melt = 50;
-        deep_depth = -500;
+        deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
         %flowline_file = ''
     case{'Helheim'}%Jamie
+        exp_file = './Exp/helheim.exp';
+        hmin = 500;
+        hmax = 10000;
+        fjordmesh = 500;
+        sigma_grounded = 1e6;
+        sigma_floating = 300e3;
+        deep_melt = 50;
+        deep_depth = -600;
+        upper_melt = 0;
+        upper_depth = -50;
     case{'Kangerlussuaq'}%Jamie
     case{'Petermann'}%Felis
         exp_file = '';
@@ -290,8 +300,8 @@ if perform(org,'Stressbalance')
  		'data',md.geometry.bed,'title','Bed elevation (m)',...
  		'data',md.friction.coefficient,'title','Friction Coefficient',...
  		'colorbar#all','on',...
- 		'caxis#1-2',([1.5,1500]),...
- 		'log#1-2',10);
+ 		'caxis#1-2',([1.5,round(max(md.inversion.vel_obs),-2)]),...
+ 		'log#1-2',10,'ncols',4);
 
     savemodel(org,md);
 end
