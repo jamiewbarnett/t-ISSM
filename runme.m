@@ -28,7 +28,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e6;
         sigma_floating = 300e3;
-        deep_melt = 50;
+        deep_melt = 2*365;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
