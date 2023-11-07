@@ -34,7 +34,7 @@ switch glacier
         upper_depth = -50;
     case{'Kangerlussuaq'}%Jamie
     case{'Petermann'}%Felis
-        exp_file = '';
+        exp_file = './Exp/petermann.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
