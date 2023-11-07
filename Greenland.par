@@ -52,11 +52,11 @@ md.initialization.pressure=md.materials.rho_ice*md.constants.g*md.geometry.thick
 
 disp('   Reading velocities ');
 
-x = double(ncread("Data/vx.nc",'x'));
+x = double(ncread("Model_Data/vx.nc",'x'));
 
-y = double(ncread("Data/vx.nc",'y'));
-vx	= double(ncread("Data/vx.nc",'Band1'));
-vy	= double(ncread("Data/vy.nc",'Band1'));
+y = double(ncread("Model_Data/vx.nc",'y'));
+vx	= double(ncread("Model_Data/vx.nc",'Band1'));
+vy	= double(ncread("Model_Data/vy.nc",'Band1'));
 vobs = sqrt(vx.^2+vy.^2);
 
 
