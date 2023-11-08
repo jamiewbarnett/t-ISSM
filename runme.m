@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -35,11 +35,15 @@ switch glacier
     case{'Kangerlussuaq'}%Jamie
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
-        hmin = 500;
+        hmin = 750;
         hmax = 10000;
-        fjordmesh = 500;
+        fjordmesh = 750;
         sigma_grounded = 1e6;
-        sigma_floating = 300e3;
+        sigma_floating = 500e3;
+        deep_melt = 35;
+        deep_depth = -500;
+        upper_melt = 0;
+        upper_depth = -50;
         %flowline_file = '';
     case{'Jakobshavn'} %Felis
         exp_file = '';
