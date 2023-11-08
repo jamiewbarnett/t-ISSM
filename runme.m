@@ -6,7 +6,7 @@ steps = [4];
 % Type the glacier you want to model below
 
 
-glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 
 % Find correct exp and flowline files
@@ -17,7 +17,7 @@ switch glacier
         hmax = 20000;
         fjordmesh = 1500;
         sigma_grounded = 1e6;
-        sigma_floating = 400e3;
+        sigma_floating = 500e3;
         deep_melt = 40;
         deep_depth = -600;
         upper_melt = 0;
@@ -30,7 +30,7 @@ switch glacier
         hmax = 10000;
         fjordmesh = 500;
         sigma_grounded = 1e7;
-        sigma_floating = 300e4;
+        sigma_floating = 500e3;
         deep_melt = 400;
         deep_depth = -600;
         upper_melt = 0;
@@ -439,7 +439,7 @@ if perform(org,'Spin_Up')
 	    %dont touch the spclevelset, just keep what is from the previous model and do nothing here
     end
 
-    if islandspc == 1
+    if icelandspc == 1
 
         md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
         pos = find_iceLandBoundary(md, 1); %1=is2D
