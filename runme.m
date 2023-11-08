@@ -1,4 +1,4 @@
-steps = [4];
+steps = [3:4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -7,9 +7,7 @@ steps = [4];
 
 
 
-glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
-
-
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -311,7 +309,7 @@ if perform(org,'Stressbalance')
 	%Recalculate surface
 	md.geometry.surface=md.geometry.base+md.geometry.thickness;
 
-     M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+    M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
 
     %Find vertices on boundary and within exp files
     pos=find(md.mesh.vertexonboundary & M>=1);
