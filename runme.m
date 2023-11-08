@@ -1,4 +1,4 @@
-steps = [1];
+steps = [4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -6,18 +6,18 @@ steps = [1];
 % Type the glacier you want to model below
 
 
-glacier = 'Kangerlussuaq'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 
 % Find correct exp and flowline files
 switch glacier
     case{'79'} %Jamie
-        exp_file = './Exp/79.expexp';
+        exp_file = './Exp/79.exp';
         hmin = 1000;
         hmax = 20000;
         fjordmesh = 1500;
         sigma_grounded = 1e6;
-        sigma_floating = 250e3;
+        sigma_floating = 400e3;
         deep_melt = 40;
         deep_depth = -600;
         upper_melt = 0;
@@ -28,9 +28,9 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e6;
-        sigma_floating = 300e3;
-        deep_melt = 2*365;
+        sigma_grounded = 1e7;
+        sigma_floating = 300e4;
+        deep_melt = 400;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -39,7 +39,7 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e6;
+        sigma_grounded = 3e7;
         sigma_floating = 300e3;
         deep_melt = 2*365;
         deep_depth = -600;
@@ -119,7 +119,7 @@ if perform(org,'Mesh')
     md = model;
 
     %Create initial mesh at resolution of 500m
-    md=bamg(md,'domain',exp_file,'hmax',5000);
+    md=bamg(md,'domain',exp_file,'hmax',500);
 
 
     disp('Refining mesh to velocities')
@@ -309,6 +309,21 @@ if perform(org,'Stressbalance')
 	%Recalculate surface
 	md.geometry.surface=md.geometry.base+md.geometry.thickness;
 
+     M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+
+    %Find vertices on boundary and within exp files
+    pos=find(md.mesh.vertexonboundary & M>=1);
+    
+    %Set Dirichlet
+    md.stressbalance.spcvx(pos)=0; %no west/east flow
+    md.stressbalance.spcvy(pos)=0; %no north/south flow
+
+
+    %REMOVE dirichlet conditions on non-ice vertices
+    pos = find(M==1 & md.mesh.vertexonboundary==0);
+    md.stressbalance.spcvx(pos)=NaN;
+    md.stressbalance.spcvy(pos)=NaN;
+
 	%Test plot
 	plotmodel(md,...
  		'data',md.inversion.vel_obs,'title','Observed velocity (m/yr)',...
@@ -433,7 +448,7 @@ if perform(org,'Spin_Up')
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
-	    md.frontalforcings.meltingrate=zeros(md.mesh.numberofvertices,1); %only effective if front is grounded
+	    md.frontalforcings.meltingrate=(deep_melt/2)*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
     end
 
     %Basal Melt options
