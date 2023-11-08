@@ -6,7 +6,9 @@ steps = [4];
 % Type the glacier you want to model below
 
 
+
 glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+
 
 
 % Find correct exp and flowline files
@@ -51,11 +53,11 @@ switch glacier
         hmax = 10000;
         fjordmesh = 750;
         sigma_grounded = 1e6;
-        sigma_floating = 500e3;
-        deep_melt = 35;
-        deep_depth = -500;
+        sigma_floating = 475e3;
+        deep_melt = 45;
+        deep_depth = -400;
         upper_melt = 0;
-        upper_depth = -50;
+        upper_depth = -100;
         %flowline_file = '';
     case{'Jakobshavn'} %Felis
         exp_file = '';
@@ -433,6 +435,10 @@ if perform(org,'Spin_Up')
 	    %dont touch the spclevelset, just keep what is from the previous model and do nothing here
     end
 
+    md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
+    pos = find_iceLandBoundary(md, 1); %1=is2D
+    md.levelset.spclevelset(pos)=-1;
+
     md.levelset.kill_icebergs=1;
     %md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
 
@@ -499,6 +505,13 @@ if perform(org,'Spin_Up')
 		md=solve(md,'Transient');
 
         savemodel(org,md);
+
+        plotmodel(md, 'data', md.inversion.vel_obs, 'data', md.results.TransientSolution(end).Vel, ...
+            'mask', md.mask.ice_levelset<0, 'mask#2-4', md.results.TransientSolution(end).MaskIceLevelset<0, ...
+            'caxis#1-2', [0 1000], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
+            'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
+            'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
+
 
 end
 

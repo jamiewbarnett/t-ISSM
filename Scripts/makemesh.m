@@ -1,7 +1,7 @@
 function mesh = makemesh(data,filename)
 
 
-mesh_data = readtable(data,"Delimiter",',');
+mesh_data = readtable(data,"Delimiter",';');
 mesh = struct('x',mesh_data.X,'y',mesh_data.Y);
 
 if (mesh.x(1) ~= mesh.x(end)) && (mesh.y(1) ~= mesh.y(end))
