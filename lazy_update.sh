@@ -4,7 +4,7 @@ now=$(date +"%Y_%m_%d")
 
 
 
-rm *.tar.gz; rm *.bin; rm *.asv 
+rm *.tar.gz; rm *.bin; rm *.asv; rm *.errlog; rm *.outlog; rm *.queue; rm *.toolkits; 
 
 
 git add --all -- ':!Model_Data/*' ':!Outputs/*' ':!.DS_Store'
