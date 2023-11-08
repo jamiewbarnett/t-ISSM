@@ -1,9 +1,10 @@
-steps = [4];
+steps = [1:4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
+
 
 glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
@@ -13,7 +14,7 @@ switch glacier
         exp_file = './Exp/79.exp';
         hmin = 1000;
         hmax = 20000;
-        fjordmesh = 1000;
+        fjordmesh = 1500;
         sigma_grounded = 1e6;
         sigma_floating = 250e3;
         deep_melt = 50;
@@ -28,7 +29,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e6;
         sigma_floating = 300e3;
-        deep_melt = 50;
+        deep_melt = 2*365;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -348,7 +349,7 @@ if perform(org,'Spin_Up')
     md.smb.mass_balance = [];
     smbMAR = [];
 
-    for yy=1:(40*12) % Monthly data
+    for yy=(30*12):(40*12) % Monthly data
         smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
         smbMAR = [smbMAR smboutput];
         %progress = sprintf('Read %d timesteps out of %d',yy, nyrs_smb*12);
