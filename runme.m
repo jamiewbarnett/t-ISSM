@@ -1,22 +1,22 @@
-steps = [1:4];
+steps = [1];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
 
-glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Kangerlussuaq'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
     case{'79'} %Jamie
-        exp_file = './Exp/79.exp';
+        exp_file = './Exp/79.expexp';
         hmin = 1000;
         hmax = 20000;
         fjordmesh = 1500;
         sigma_grounded = 1e6;
         sigma_floating = 250e3;
-        deep_melt = 50;
+        deep_melt = 40;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -33,6 +33,16 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
     case{'Kangerlussuaq'}%Jamie
+        exp_file = './Exp/kangerlussuaq.exp';
+        hmin = 500;
+        hmax = 10000;
+        fjordmesh = 500;
+        sigma_grounded = 1e6;
+        sigma_floating = 300e3;
+        deep_melt = 2*365;
+        deep_depth = -600;
+        upper_melt = 0;
+        upper_depth = -50;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         hmin = 500;
@@ -103,7 +113,7 @@ if perform(org,'Mesh')
     md = model;
 
     %Create initial mesh at resolution of 500m
-    md=bamg(md,'domain',exp_file,'hmax',500);
+    md=bamg(md,'domain',exp_file,'hmax',5000);
 
 
     disp('Refining mesh to velocities')
@@ -272,7 +282,7 @@ if perform(org,'Stressbalance')
 
 
     %Set friction for non-ice regions
-    pos = find(md.mask.ocean_levelset<0 | md.mask.ice_levelset>1);
+    pos = find(md.mask.ocean_levelset<0 | md.mask.ice_levelset>1 | (md.friction.coefficient>150 & md.mask.ocean_levelset<1000 & md.geometry.bed <0));
     md.friction.coefficient(pos)=  120*((min(max(0,md.geometry.bed(pos)+800),max(md.geometry.bed))/max(md.geometry.bed))); %Akesson (2018)
 
     md.friction.p = ones(md.mesh.numberofelements,1);
@@ -344,7 +354,7 @@ if perform(org,'Spin_Up')
     md.smb.mass_balance = [];
     smbMAR = [];
 
-    for yy=(30*12):(40*12) % Monthly data
+    for yy=1:(40*12) % Monthly data
         smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
         smbMAR = [smbMAR smboutput];
         %progress = sprintf('Read %d timesteps out of %d',yy, nyrs_smb*12);
