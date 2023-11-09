@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -27,7 +27,7 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 3e7;
+        sigma_grounded = 1e7;
         sigma_floating = 300e3;
         deep_melt = 100;
         deep_depth = -600;
@@ -39,9 +39,9 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 3e7;
+        sigma_grounded = 1e7;
         sigma_floating = 300e3;
-        deep_melt = 2*365;
+        deep_melt = 200;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -496,7 +496,7 @@ if perform(org,'Spin_Up')
 							'GroundinglineMassFlux',... %Gt/yr
 							'CalvingMeltingrate','TotalCalvingMeltingFluxLevelset','IcefrontMassFluxLevelset',...
 							'TotalCalvingFluxLevelset','TotalGroundedBmb',...
-							'Calvingratex','Calvingratey','CalvingCalvingrate'};
+							'Calvingratex','Calvingratey','CalvingCalvingrate','SigmaVM'};
     
 	    md.verbose=verbose('solution',true,'module',false,'convergence',false);
 
