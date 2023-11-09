@@ -15,11 +15,12 @@ switch glacier
         hmax = 20000;
         fjordmesh = 1500;
         sigma_grounded = 1e6;
-        sigma_floating = 400e3;
+        sigma_floating = 500e3;
         deep_melt = 40;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
+        icelandspc = 0;
         %flowline_file = ''
     case{'Helheim'}%Jamie
         exp_file = './Exp/helheim.exp';
@@ -27,11 +28,12 @@ switch glacier
         hmax = 10000;
         fjordmesh = 500;
         sigma_grounded = 1e7;
-        sigma_floating = 300e4;
+        sigma_floating = 500e3;
         deep_melt = 400;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
+        icelandspc = 0;
     case{'Kangerlussuaq'}%Jamie
         exp_file = './Exp/kangerlussuaq.exp';
         hmin = 500;
@@ -43,6 +45,7 @@ switch glacier
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
+        icelandspc = 0;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         hmin = 750;
@@ -55,6 +58,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         flowline_file = './Exp/petermann_flowline.exp';
+        icelandspc = 1;
     case{'Jakobshavn'} %Felis
         exp_file = '';
         hmin = 500;
@@ -62,6 +66,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e6;
         sigma_floating = 300e3;
+        icelandspc = 0;
         %flowline_file = '';
     case{'Tracy+Heilprin'}%Felis
         exp_file = '';
@@ -70,6 +75,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e6;
         sigma_floating = 300e3;
+        icelandspc = 0;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
@@ -430,9 +436,13 @@ if perform(org,'Spin_Up')
 	    %dont touch the spclevelset, just keep what is from the previous model and do nothing here
     end
 
-    md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
-    pos = find_iceLandBoundary(md, 1); %1=is2D
-    md.levelset.spclevelset(pos)=-1;
+    if icelandspc == 1
+
+        md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
+        pos = find_iceLandBoundary(md, 1); %1=is2D
+        md.levelset.spclevelset(pos)=-1;
+
+    end
 
     md.levelset.kill_icebergs=1;
     %md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
