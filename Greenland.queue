@@ -1,2 +1,0 @@
-#!/bin/sh
-mpiexec -np 4 /home/fholmes/ISSM/trunk-jpl//bin/issm.exe StressbalanceSolution /home/fholmes/ISSM/trunk-jpl//execution/Greenland-11-08-2023-07-11-43-27627 Greenland

@@ -1,11 +1,9 @@
-steps = [3:4];
+steps = [4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
-
-
 
 glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
@@ -51,12 +49,12 @@ switch glacier
         hmax = 10000;
         fjordmesh = 750;
         sigma_grounded = 1e6;
-        sigma_floating = 475e3;
+        sigma_floating = 200e3;
         deep_melt = 45;
         deep_depth = -400;
         upper_melt = 0;
         upper_depth = -100;
-        %flowline_file = '';
+        flowline_file = './Exp/petermann_flowline.exp';
     case{'Jakobshavn'} %Felis
         exp_file = '';
         hmin = 500;
@@ -85,7 +83,6 @@ parameterize_file = './Greenland.par';
 
 %%
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
-
 
 %Transient
 nyrs = 50;
@@ -512,7 +509,6 @@ if perform(org,'Spin_Up')
 
 
 end
-
 
 
 
