@@ -17,7 +17,7 @@ switch glacier
         hmax = 20000;
         fjordmesh = 1500;
         sigma_grounded = 1e6;
-        sigma_floating = 500e3;
+        sigma_floating = 400e3;
         deep_melt = 40;
         deep_depth = -600;
         upper_melt = 0;
@@ -29,9 +29,9 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e7;
-        sigma_floating = 500e3;
-        deep_melt = 400;
+        sigma_grounded = 3e7;
+        sigma_floating = 300e3;
+        deep_melt = 100;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -111,8 +111,8 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 
 %%%% Model name %%%%
-ModelName = 'NEWTEST';
-org = organizer('repository','Outputs','prefix',[glacier ModelName num2str(nyrs) 'years'],'steps',steps);
+ModelName = 't-issm';
+org = organizer('repository','Outputs','prefix',[glacier],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -440,11 +440,9 @@ if perform(org,'Spin_Up')
     end
 
     if icelandspc == 1
-
         md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
         pos = find_iceLandBoundary(md, 1); %1=is2D
         md.levelset.spclevelset(pos)=-1;
-
     end
 
     md.levelset.kill_icebergs=1;
@@ -516,7 +514,7 @@ if perform(org,'Spin_Up')
 
         plotmodel(md, 'data', md.inversion.vel_obs, 'data', md.results.TransientSolution(end).Vel, ...
             'mask', md.mask.ice_levelset<0, 'mask#2-4', md.results.TransientSolution(end).MaskIceLevelset<0, ...
-            'caxis#1-2', [0 1000], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
+            'caxis#1-2', [0 max(max(md.inversion.vel_obs),max(md.results.TransientSolution(end).Vel))], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
             'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
             'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
 
