@@ -42,7 +42,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 - All of these datasets are read in and applied to the glacier using the `Greenland.par` file
 - Upon successful completion of this step, you should get output that looks similar to the example below:
 
-  <img width="1582" alt="Screenshot 2023-11-02 at 14 48 41" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/2d945cbe-7184-42a1-9198-09dc2b30b408">
+  <img width="1582" alt="Screenshot 2023-11-02 at 14 48 41" src="https://github.com/jamiewbarnett/t-issm/Screenshots/step2.png">
 
 ## Step 3: Invert it/ run the stress balance
 
@@ -50,7 +50,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 - The next step is to use observed surface velocities to invert for basal friction, whilst also solving for a Stressbalance solution of the glacier
 - Upon successful completion of this step, you should get output that looks similar to the example below:
 
- <img width="1582" alt="Screenshot 2023-11-06 at 15 02 43" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/f4af377f-8a03-4e1a-8f0f-d33f4cc72675">
+ <img width="1582" alt="Screenshot 2023-11-06 at 15 02 43" src="https://github.com/jamiewbarnett/t-issm/Screenshots/step3.png">
 
 
 
