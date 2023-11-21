@@ -91,7 +91,7 @@ parameterize_file = './Greenland.par';
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Transient
-nyrs = 50;
+nyrs = 20;
 
 %Timestepping
 timestep = 0.05;
