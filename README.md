@@ -11,7 +11,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
   - Jakobshavn Isbrae
   - Tracy and Heilprin glaciers
  
-- Each group should choose a different glacier - and its first come first served, so let Jamie + Felicity know as soon as you have chosen your fave
+- Each group should choose a different glacier - this will be decided in class 
 - Ryder glacier is only used for the in-class example, and is shown in all the example figures in these instructions
 
 # Task 2: Run model to spun-up state 
