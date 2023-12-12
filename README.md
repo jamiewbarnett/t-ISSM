@@ -1,4 +1,4 @@
-# t-issm: Glacier fun with J-man and Felis 
+# t-ISSM: Glacier fun with J-man and Felis 
 Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have questions
 
 # Task 1: Choose your pokemon (glacier)
@@ -11,7 +11,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
   - Jakobshavn Isbrae
   - Tracy and Heilprin glaciers
  
-- Each group should choose a different glacier - and its first come first served, so let Jamie + Felicity know as soon as you have chosen your fave
+- Each group should choose a different glacier - this will be decided in class 
 - Ryder glacier is only used for the in-class example, and is shown in all the example figures in these instructions
 
 # Task 2: Run model to spun-up state 
@@ -33,7 +33,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 
 - Upon successful completion of this step, you should get output that looks similar to the example below:
 
-<img width="1582" alt="Screenshot 2023-11-02 at 14 42 34" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/d4eff310-1459-4eef-be7b-5b4d19758579">
+<img width="1582" alt="Screenshot 2023-11-02 at 14 42 34" src="./Screenshots/step1.png">
 
 ## Step 2: Parameterise it
 
@@ -42,7 +42,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 - All of these datasets are read in and applied to the glacier using the `Greenland.par` file
 - Upon successful completion of this step, you should get output that looks similar to the example below:
 
-  <img width="1582" alt="Screenshot 2023-11-02 at 14 48 41" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/2d945cbe-7184-42a1-9198-09dc2b30b408">
+  <img width="1582" alt="Screenshot 2023-11-02 at 14 48 41" src="./Screenshots/step2.png">
 
 ## Step 3: Invert it/ run the stress balance
 
@@ -50,7 +50,7 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 - The next step is to use observed surface velocities to invert for basal friction, whilst also solving for a Stressbalance solution of the glacier
 - Upon successful completion of this step, you should get output that looks similar to the example below:
 
- <img width="1582" alt="Screenshot 2023-11-06 at 15 02 43" src="https://github.com/jamiewbarnett/t-issm/assets/141425558/f4af377f-8a03-4e1a-8f0f-d33f4cc72675">
+ <img width="1582" src="./Screenshots/step3.png">
 
 
 
