@@ -113,11 +113,7 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 %%%% Model name %%%%
 ModelName = 't-issm';
-<<<<<<< HEAD
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
-=======
-org = organizer('repository','Outputs','prefix',[glacier],'steps',steps);
->>>>>>> 14c275a0318d56d1bea3396c174334751f79ffbd
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
