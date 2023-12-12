@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -69,12 +69,16 @@ switch glacier
         icelandspc = 0;
         %flowline_file = '';
     case{'Tracy+Heilprin'}%Felis
-        exp_file = '';
+        exp_file = 'tracy_heilprin.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e6;
-        sigma_floating = 300e3;
+        sigma_grounded = 1e8;
+        sigma_floating = 300e2;
+        deep_melt = 30;
+        deep_depth = -400;
+        upper_melt = 0;
+        upper_depth = -100;
         icelandspc = 0;
         %flowline_file = '';
     case{'Ryder'}
@@ -108,8 +112,8 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 
 %%%% Model name %%%%
-ModelName = 'NEWTEST';
-org = organizer('repository','Outputs','prefix',[glacier ModelName num2str(nyrs) 'years'],'steps',steps);
+ModelName = 't-issm';
+org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -516,8 +520,6 @@ if perform(org,'Spin_Up')
             'caxis#1-2', [0 1000], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
             'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
             'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
-
-
 end
 
 
