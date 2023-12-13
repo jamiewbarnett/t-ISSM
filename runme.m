@@ -1,12 +1,11 @@
-steps = [1:4];
+steps = [4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
 
-glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
-
+glacier = 'Kangerlussuaq'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -96,7 +95,7 @@ parameterize_file = './Greenland.par';
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Transient
-nyrs = 5;
+nyrs = 25;
 
 %Timestepping
 timestep = 0.05;
@@ -113,7 +112,7 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 
 %%%% Model name %%%%
-ModelName = 't-issm';
+ModelName = 'testing';
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -180,7 +179,8 @@ if perform(org,'Mesh')
         'data',md.inversion.vel_obs,'title','Velocity', ...
         'data','mesh', 'title', 'Mesh')
 
-    savemodel(org,md);
+    %savemodel(org,md);
+    save(['Outputs/' char(glacier) '_Mesh'],'md','-v7.3'); %char(org.steps(end).string)
 
 end
 
@@ -189,7 +189,9 @@ end
 %%
 %% %%%%%%%%%%%%% Step 2: Parameterize %%%%%%%%%%%%
 if perform(org,'Parameterization')
-    md = loadmodel(org,'Mesh');
+
+    %md = loadmodel(org,'Mesh');
+    load(['Outputs/' char(glacier) '_Mesh'])
 
     md = parameterize(md,parameterize_file);
 
@@ -198,14 +200,17 @@ if perform(org,'Parameterization')
         'data', md.geometry.bed, 'title', 'Bedrock (m)', ...
         'data', 'BC','caxis#1',[-1,1])
 
-    savemodel(org,md);
+    %savemodel(org,md);
+    save(['Outputs/' char(glacier) '_Parameterization'],'md','-v7.3');
 
 end
 %%
 %% %%%%%%%%%%%%% Step 3: Stressbalance %%%%%%%%%%%
 
 if perform(org,'Stressbalance')
-    md = loadmodel(org,'Parameterization');
+
+    %md = loadmodel(org,'Parameterization');
+    load(['Outputs/' char(glacier) '_Parameterization'])
     
     md = setflowequation(md,'SSA','all');
 
@@ -342,7 +347,9 @@ if perform(org,'Stressbalance')
  		'caxis#1-2',([1.5,round(max(md.inversion.vel_obs),-2)]),...
  		'log#1-2',10,'ncols',4);
 
-    savemodel(org,md);
+    %savemodel(org,md);
+    save(['Outputs/' char(glacier) '_Stressbalance'],'md','-v7.3');
+
 end
 
 %%
@@ -350,17 +357,7 @@ end
 
 if perform(org,'Spin_Up')
 
-    %Historical SMB... MAR average 1960 to 2000
-
-    %Simple basal melt... Linear 10 to 0?
-
-    % 1. no calving
-    % 2. calving rate
-    % 3. Max migartion
-    % 4. No moving front
-
-
-    md = loadmodel(org,'Stressbalance');
+    load(['Outputs/' char(glacier) '_Stressbalance'])
 
     %Intial Velocities
     md.initialization.vx = md.results.StressbalanceSolution.Vx;
@@ -505,13 +502,24 @@ if perform(org,'Spin_Up')
 		%Solve
 		md=solve(md,'Transient');
 
-        savemodel(org,md);
+        %savemodel(org,md);
+        save(['Outputs/' char(glacier) '_Spinup'],'md','-v7.3');
 
         plotmodel(md, 'data', md.inversion.vel_obs, 'data', md.results.TransientSolution(end).Vel, ...
             'mask', md.mask.ice_levelset<0, 'mask#2-4', md.results.TransientSolution(end).MaskIceLevelset<0, ...
             'caxis#1-2', [0 max(max(md.inversion.vel_obs),max(md.results.TransientSolution(end).Vel))], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
             'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
             'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
+
+
+end
+
+if perform(org,'Transient')
+
+    load(['Outputs/' char(glacier) '_Stressbalance'])
+
+    save(['Outputs/' char(glacier) '_' char(ModelName)],'md','-v7.3');
+
 end
 
 
