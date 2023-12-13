@@ -4,7 +4,7 @@ function output = find_iceLandBoundary(md, is2D)
 
 % Read in the mask 
 M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask', 'nearest',...
-    '../Model_Data/BedMachineGreenland-v5.nc');
+    './Model_Data/BedMachineGreenland-2022-03-17.nc');
 % 0 is water, 1 is land, 2 is grounded ice, 3 is floating ice
 
 if is2D==1
