@@ -73,13 +73,13 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e8;
-        sigma_floating = 300e2;
-        deep_melt = 30;
+        sigma_grounded = 3e6;
+        sigma_floating = 400e3;
+        deep_melt = 350;
         deep_depth = -400;
         upper_melt = 0;
         upper_depth = -100;
-        icelandspc = 0;
+        icelandspc = 1;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
@@ -349,7 +349,7 @@ end
 
 if perform(org,'Spin_Up')
 
-    %Historical SMB... MAR average 1950 to 2000
+    %Historical SMB... MAR average 1960 to 2000
 
     %Simple basal melt... Linear 10 to 0?
 
@@ -389,15 +389,8 @@ if perform(org,'Spin_Up')
         %disp(progress)
     end
    
-    for zz=1:length(smbMAR)
-        for vv=1:width(smbMAR)
-            if smbMAR(zz, vv) == -9999 % Remove instances of fill/missing value
-                smbMAR(zz, vv) = 0.0;
-            else
-                smbMAR(zz, vv) = smbMAR(zz, vv);
-            end
-        end
-    end
+    pos=find(smbMAR==-9999);
+    smbMAR(pos)=0.0;
           
     md.smb.mass_balance = smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); 
     md.smb.mass_balance = mean(md.smb.mass_balance,2);
