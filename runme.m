@@ -5,7 +5,8 @@ steps = [1:4];
 
 % Type the glacier you want to model below
 
-glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+
 
 % Find correct exp and flowline files
 switch glacier
@@ -69,13 +70,17 @@ switch glacier
         icelandspc = 0;
         %flowline_file = '';
     case{'Tracy+Heilprin'}%Felis
-        exp_file = '';
+        exp_file = 'tracy_heilprin.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e6;
-        sigma_floating = 300e3;
-        icelandspc = 0;
+        sigma_grounded = 3e6;
+        sigma_floating = 400e3;
+        deep_melt = 350;
+        deep_depth = -400;
+        upper_melt = 0;
+        upper_depth = -100;
+        icelandspc = 1;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
@@ -109,7 +114,7 @@ nyrs_smb = 2100-2099; % End and start year of dataset
 
 %%%% Model name %%%%
 ModelName = 't-issm';
-org = organizer('repository','Outputs','prefix',[glacier],'steps',steps);
+org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -345,7 +350,7 @@ end
 
 if perform(org,'Spin_Up')
 
-    %Historical SMB... MAR average 1950 to 2000
+    %Historical SMB... MAR average 1960 to 2000
 
     %Simple basal melt... Linear 10 to 0?
 
@@ -385,15 +390,8 @@ if perform(org,'Spin_Up')
         %disp(progress)
     end
    
-    for zz=1:length(smbMAR)
-        for vv=1:width(smbMAR)
-            if smbMAR(zz, vv) == -9999 % Remove instances of fill/missing value
-                smbMAR(zz, vv) = 0.0;
-            else
-                smbMAR(zz, vv) = smbMAR(zz, vv);
-            end
-        end
-    end
+    pos=find(smbMAR==-9999);
+    smbMAR(pos)=0.0;
           
     md.smb.mass_balance = smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); 
     md.smb.mass_balance = mean(md.smb.mass_balance,2);
@@ -514,8 +512,6 @@ if perform(org,'Spin_Up')
             'caxis#1-2', [0 max(max(md.inversion.vel_obs),max(md.results.TransientSolution(end).Vel))], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
             'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
             'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
-
-
 end
 
 
