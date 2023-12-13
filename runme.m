@@ -1,4 +1,4 @@
-steps = [4];
+steps = [1:4];
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -6,6 +6,7 @@ steps = [4];
 % Type the glacier you want to model below
 
 glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+
 
 % Find correct exp and flowline files
 switch glacier
@@ -95,7 +96,7 @@ parameterize_file = './Greenland.par';
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Transient
-nyrs = 20;
+nyrs = 5;
 
 %Timestepping
 timestep = 0.05;
