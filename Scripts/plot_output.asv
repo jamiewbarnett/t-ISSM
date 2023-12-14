@@ -61,23 +61,25 @@ for i=1:(output_steps+1)
     % Calculate the freeboard height:
     fb = -base*rho_sw/rho_ice + base;
     fb(md.geometry.bed>=0) = md.geometry.bed(md.geometry.bed>=0);
-    slr_thickness=surf-fb;
-    slr_thickness(md.mask.ocean_levelset<0)=NaN;
+    slr_main_thickness=surf-fb;
+    slr_main_thickness(md.mask.ocean_levelset<0)=NaN;
     % Fix negative values around steep topography:
-    slr_thickness(slr_thickness<0) = 0;
+    slr_main_thickness(slr_main_thickness<0) = 0;
     % Project onto a fixed grid
-    slr_thickness_gridded=InterpFromMeshToGrid(index,x,y,slr_thickness,min(x):500:max(x),min(y):500:max(y),NaN);
+    slr_main_thickness_gridded=InterpFromMeshToGrid(index,x,y,slr_main_thickness,min(x):500:max(x),min(y):500:max(y),NaN);
     % Total ice volume available for SLR, in cubic meters:
-    TotalSLRVolume=sum(slr_thickness_gridded(:)*(500*500), 'omitnan');
+    SLR_main_volume=sum(slr_main_thickness_gridded(:)*(grid_size*grid_size), 'omitnan');
     % Total ice mass available for SLR (kg):
-    TotalSLRmass = TotalSLRVolume*rho_ice;
+    SLR_main_mass = SLR_main_volume*rho_ice;
     % Convert mass to Gt, and then to impact on SLR in milimeters:
     SLR_mm_per_Gt = (0.001/362)*1000;  % (mm/Gt) sea level potential per Gt water (or ice) from Meier et al. 2007
-    SL_potential = [SL_potential (TotalSLRmass*1e-12)*SLR_mm_per_Gt];
+    SL_potential = [SL_potential ((SLR_main_mass*1e-12)*SLR_mm_per_Gt)];
     if i==1
         SL_contrib=[0];
     else
-        SL_contrib=[SL_contrib (SL_contrib(i-1)+SL_potential(i-1)-SL_potential(i))];
+        slr_density_volume = md.results.TransientSolution(i-1).IceVolume-md.results.TransientSolution(i).IceVolume;
+        slr_density = slr_density_volume((rho_sw-rho_fw)/rho_sw)*1e-12*1000; % Convert to mm
+        SL_contrib=[SL_contrib (SL_contrib(i-1)+((SL_potential(i-1)-SL_potential(i))];
     end
 end
 
@@ -89,6 +91,7 @@ subplot(5,1,5);
 plot([1:output_steps], SL_contrib(1:output_steps), 'color', [0.9290 0.6940 0.1250], 'linewidth', 2); 
 title('Cumulative Sea level contribution (mm)');
 xlabel('Simulation years');
+
 
 
 
