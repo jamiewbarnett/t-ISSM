@@ -70,7 +70,7 @@ for i=1:(output_steps+1)
     TotalSLRVolume=sum(slr_thickness_gridded(:)*(500*500), 'omitnan');
     % Total ice mass available for SLR (kg):
     TotalSLRmass = TotalSLRVolume*rho_ice;
-    % Convert mass to Gt, and then to impact on SLR in meters:
+    % Convert mass to Gt, and then to impact on SLR in milimeters:
     SLR_mm_per_Gt = (0.001/362)*1000;  % (mm/Gt) sea level potential per Gt water (or ice) from Meier et al. 2007
     SL_potential = [SL_potential (TotalSLRmass*1e-12)*SLR_mm_per_Gt];
     if i==1
