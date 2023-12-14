@@ -53,6 +53,7 @@ index=md.mesh.elements;
 x=md.mesh.x;
 y=md.mesh.y;
 
+%Not including impact of ocean freshening and/or firn density corrections
 for i=1:(output_steps+1)
     base=md.results.TransientSolution(i).Base;
     surf=md.results.TransientSolution(i).Surface;
