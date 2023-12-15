@@ -42,7 +42,6 @@ title('Mean melt rate at grounded fronts (black) and under floating ice (pink) (
 xlabel('Simulation years');
 
 
-
 % Sea level rise contribution 
 rho_ice = 917; % (kg/m^3) density of ice
 rho_sw = 1030; % (kg/m^3) density of seawater
@@ -73,11 +72,14 @@ for i=1:(output_steps+1)
     TotalSLRmass = TotalSLRVolume*rho_ice;
     % Convert mass to Gt, and then to impact on SLR in milimeters:
     SLR_mm_per_Gt = (0.001/362)*1000;  % (mm/Gt) sea level potential per Gt water (or ice) from Meier et al. 2007
-    SL_potential = [SL_potential (TotalSLRmass*1e-12)*SLR_mm_per_Gt];
+    SL_density_potential=md.results.TransientSolution(i).IceMass*SLR_mm_per_Gt*1e-12*((rho_sw-rho_fw)/rho_sw);
+    SL_potential = [SL_potential ((TotalSLRmass*1e-12)*SLR_mm_per_Gt)+SL_density_potential];
     if i==1
         SL_contrib=[0];
     else
-        SL_contrib=[SL_contrib (SL_contrib(i-1)+SL_potential(i-1)-SL_potential(i))];
+        sl_MassChange=(md.results.TransientSolution(i-1).IceMass-md.results.TransientSolution(i).IceMass)*SLR_mm_per_Gt*1e-12;
+	sl_density=sl_MassChange*((rho_sw-rho_fw)/rho_sw);
+	SL_contrib=[SL_contrib ((SL_contrib(i-1)+SL_potential(i-1)-SL_potential(i))+sl_density)];
     end
 end
 
