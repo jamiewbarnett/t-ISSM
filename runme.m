@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Kangerlussuaq'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -76,9 +76,9 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 3e6;
-        sigma_floating = 400e3;
-        deep_melt = 350;
+        sigma_grounded = 7e5;
+        sigma_floating = 350e3;
+        deep_melt = 100;
         deep_depth = -400;
         upper_melt = 0;
         upper_depth = -100;
