@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -52,13 +52,13 @@ switch glacier
         hmax = 10000;
         fjordmesh = 750;
         sigma_grounded = 1e6;
-        sigma_floating = 200e3;
+        sigma_floating = 400e3;
         deep_melt = 45;
-        deep_depth = -400;
+        deep_depth = -500;
         upper_melt = 0;
-        upper_depth = -100;
+        upper_depth = -200;
         flowline_file = './Exp/petermann_flowline.exp';
-        icelandspc = 1;
+        icelandspc = 0;
     case{'Jakobshavn'} %Felis
         exp_file = '';
         hmin = 500;
@@ -73,13 +73,13 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 7e5;
-        sigma_floating = 350e3;
+        sigma_grounded = 1e7;
+        sigma_floating = 150e3;
         deep_melt = 100;
         deep_depth = -400;
         upper_melt = 0;
         upper_depth = -100;
-        icelandspc = 1;
+        icelandspc = 0;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
@@ -95,7 +95,7 @@ parameterize_file = './Greenland.par';
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Transient
-nyrs = 25;
+nyrs = 50;
 
 %Timestepping
 timestep = 0.05;
@@ -103,7 +103,6 @@ outfreq = 1/timestep; % Annual output
 
 %%%% SMB %%%%
 nyrs_smb = 2100-2099; % End and start year of dataset
-
 
 %%%% Basal Melt %%%%
 
@@ -480,18 +479,18 @@ if perform(org,'Spin_Up')
     md.timestepping.final_time=md.timestepping.start_time+nyrs;
 
     %Output options
-	md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
-							'IceVolume','IceVolumeAboveFloatation',...
-							'IceVolumeAboveFloatationScaled','GroundedAreaScaled',...
-							'MaskOceanLevelset','MaskIceLevelset',...
-							'FloatingAreaScaled','IceMass',...
-							'GroundedArea','FloatingArea','TotalFloatingBmb',...
-							'BasalforcingsFloatingiceMeltingRate',...
-							'TotalCalvingFluxLevelset',... %Gt/r
-							'GroundinglineMassFlux',... %Gt/yr
-							'CalvingMeltingrate','TotalCalvingMeltingFluxLevelset','IcefrontMassFluxLevelset',...
-							'TotalCalvingFluxLevelset','TotalGroundedBmb',...
-							'Calvingratex','Calvingratey','CalvingCalvingrate','SigmaVM'};
+    md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
+        'IceVolume','IceVolumeAboveFloatation',...
+        'IceVolumeAboveFloatationScaled','GroundedAreaScaled',...
+        'MaskOceanLevelset','MaskIceLevelset',...
+        'FloatingAreaScaled','IceMass',...
+        'GroundedArea','FloatingArea','TotalFloatingBmb',...
+        'BasalforcingsFloatingiceMeltingRate',...
+        'TotalCalvingFluxLevelset',... %Gt/r
+        'GroundinglineMassFlux',... %Gt/yr
+        'CalvingMeltingrate','TotalCalvingMeltingFluxLevelset','IcefrontMassFluxLevelset',...
+        'TotalCalvingFluxLevelset','TotalGroundedBmb',...
+        'Calvingratex','Calvingratey','CalvingCalvingrate','SigmaVM'};
     
 	    md.verbose=verbose('solution',true,'module',false,'convergence',false);
 
@@ -510,13 +509,12 @@ if perform(org,'Spin_Up')
             'caxis#1-2', [0 max(max(md.inversion.vel_obs),max(md.results.TransientSolution(end).Vel))], 'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
             'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
             'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
-
-
+       
 end
 
 if perform(org,'Transient')
 
-    load(['Outputs/' char(glacier) '_Stressbalance'])
+    load(['Outputs/' char(glacier) '_Spinup'])
 
     save(['Outputs/' char(glacier) '_' char(ModelName)],'md','-v7.3');
 
