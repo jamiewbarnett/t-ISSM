@@ -11,6 +11,7 @@ glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 switch glacier
     case{'79'} %Jamie
         exp_file = './Exp/79.exp';
+        flowline_file = './Exp/79_flowline.exp';
         hmin = 1000;
         hmax = 20000;
         fjordmesh = 1500;
@@ -21,33 +22,35 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        %flowline_file = ''
     case{'Helheim'}%Jamie
         exp_file = './Exp/helheim.exp';
+        flowline_file = './Exp/helheim_flowline.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
         sigma_grounded = 1e7;
         sigma_floating = 300e3;
-        deep_melt = 100;
+        deep_melt = 100/2;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
     case{'Kangerlussuaq'}%Jamie
         exp_file = './Exp/kangerlussuaq.exp';
+        flowline_file = './Exp/kanger_flowline.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
         sigma_grounded = 1e7;
         sigma_floating = 300e3;
-        deep_melt = 200;
-        deep_depth = -600;
+        deep_melt = 400/2;
+        deep_depth = -800;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
+        flowline_file = './Exp/petermann_flowline.exp';
         hmin = 750;
         hmax = 10000;
         fjordmesh = 750;
@@ -103,11 +106,17 @@ outfreq = 1/timestep; % Annual output
 
 %%%% SMB %%%%
 nyrs_smb = 2100-2099; % End and start year of dataset
+smb_scenario = ['something'];
 
 %%%% Basal Melt %%%%
 
+melt_transient = [];
+
 
 %%%% Calving %%%%
+
+floating_transient = [];
+grounded_transient = [];
 
 
 %%%% Model name %%%%
@@ -451,7 +460,7 @@ if perform(org,'Spin_Up')
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
-	    md.frontalforcings.meltingrate=(deep_melt/2)*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
+	    md.frontalforcings.meltingrate=deep_melt*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
     end
 
     %Basal Melt options
