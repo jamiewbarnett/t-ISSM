@@ -5,7 +5,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Tracy+Heilprin'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -30,7 +30,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e7;
         sigma_floating = 300e3;
-        deep_melt = 100;
+        deep_melt = 100/2;
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -43,8 +43,8 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e7;
         sigma_floating = 300e3;
-        deep_melt = 400;
-        deep_depth = -600;
+        deep_melt = 400/2;
+        deep_depth = -800;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
@@ -60,7 +60,6 @@ switch glacier
         deep_depth = -400;
         upper_melt = 0;
         upper_depth = -100;
-
         icelandspc = 1;
     case{'Jakobshavn'} %Felis
         exp_file = '';
@@ -98,7 +97,7 @@ parameterize_file = './Greenland.par';
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Transient
-nyrs = 25;
+nyrs = 50;
 
 %Timestepping
 timestep = 0.05;
@@ -110,7 +109,7 @@ smb_scenario = ['something'];
 
 %%%% Basal Melt %%%%
 
-melt_transiet = [];
+melt_transient = [];
 
 
 %%%% Calving %%%%
@@ -460,7 +459,7 @@ if perform(org,'Spin_Up')
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
-	    md.frontalforcings.meltingrate=(deep_melt/2)*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
+	    md.frontalforcings.meltingrate=deep_melt*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
     end
 
     %Basal Melt options
