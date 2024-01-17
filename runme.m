@@ -21,6 +21,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
+        nyrs_spinUp = 20;
     case{'Helheim'}%Jamie
         exp_file = './Exp/helheim.exp';
         flowline_file = './Exp/helheim_flowline.exp';
@@ -34,6 +35,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
+        nyrs_spinUp = 20;
     case{'Kangerlussuaq'}%Jamie
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
@@ -47,6 +49,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
+        nyrs_spinUp = 20;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -59,7 +62,7 @@ switch glacier
         deep_depth = -500;
         upper_melt = 0;
         upper_depth = -200;
-        flowline_file = './Exp/petermann_flowline.exp';
+        nyrs_spinUp = 20;
         icelandspc = 0;
     case{'Jakobshavn'} %Felis
         exp_file = 'Jakobshavn.exp';
@@ -73,6 +76,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
+        nyrs_spinUp = 20;
         %flowline_file = '';
     case{'Tracy+Heilprin'}%Felis
         exp_file = 'tracy_heilprin.exp';
@@ -86,25 +90,35 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
+        nyrs_spinUp = 20;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
+        sigma_grounded = 5e5;
+        sigma_floating = 325e3;
+        deep_melt = 25;
+        deep_depth = -300;
+        upper_melt = 0;
+        upper_depth = -100;
+        icelandspc = 1;
+        nyrs_spinUp = 10;
+        %flowline_file = '';
 end
 
 
 parameterize_file = './Greenland.par';
 
 
-%% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
+% Parameters to play with for the transient simulations (step 5)
 
 %Transient
 nyrs = 2100-2098;
 
 %Timestepping
-timestep = 0.08;
+timestep = 1/12; %Monthly timestep
 outfreq = 1/timestep; % Annual output
 
 %%%% SMB %%%%
@@ -115,11 +129,11 @@ smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 basal_melt_transient = 50;
 
 %%%% Frontal Melt %%%%
-frontal_melt_transient = [25*ones(md.mesh.numberofvertices,1)];
+frontal_melt_transient = 25;
 
 %%%% Calving %%%%
-floating_transient = [300e3*ones(md.mesh.numberofvertices,1)];
-grounded_transient = [1.08e6*ones(md.mesh.numberofvertices,1)];
+floating_transient = 325e3;
+grounded_transient = 5e5;
 
 
 %%%% Model name %%%%
@@ -128,7 +142,6 @@ org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',step
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% %%%%%%%%%%%%% Step 1: Meshing %%%%%%%%%%%%%%%
-
 if perform(org,'Mesh')
 
     md = model;
@@ -192,8 +205,6 @@ if perform(org,'Mesh')
 
 end
 
-
-
 %% %%%%%%%%%%%%% Step 2: Parameterize %%%%%%%%%%%%
 if perform(org,'Parameterization')
 
@@ -213,7 +224,6 @@ if perform(org,'Parameterization')
 end
 
 %% %%%%%%%%%%%%% Step 3: Stressbalance %%%%%%%%%%%
-
 if perform(org,'Stressbalance')
 
     %md = loadmodel(org,'Parameterization');
@@ -359,9 +369,7 @@ if perform(org,'Stressbalance')
 
 end
 
-
 %% %%%%%%%%%%%%% Step 4: Spin_UP %%%%%%%%%%%%%
-
 if perform(org,'Spin_Up')
 
     load(['Outputs/' char(glacier) '_Stressbalance'])
@@ -484,7 +492,7 @@ if perform(org,'Spin_Up')
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
 
-    md.timestepping.final_time=md.timestepping.start_time+nyrs;
+    md.timestepping.final_time=nyrs_spinUp;
 
     %Output options
     md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
@@ -505,6 +513,7 @@ if perform(org,'Spin_Up')
         md.toolkits=toolkits();
         md.toolkits.DefaultAnalysis=bcgslbjacobioptions();
 		md.cluster=generic('name',oshostname,'np',4);
+        md.settings.solver_residue_threshold=1e-4;
 
 		%Solve
 		md=solve(md,'Transient');
@@ -614,14 +623,13 @@ if perform(org,'Transient')
         %Calving options
     if md.transient.ismovingfront==1
 	    md.calving=calvingvonmises(); %activate von mises calving law
-    
 	    %Stress threshold
-	    md.calving.stress_threshold_groundedice= grounded_transient; %default 1 MPa = 1e6 Pa
-	    md.calving.stress_threshold_floatingice= floating_transient; %default Petermann 300 kPa, default ISSM 150 kpa
+	    md.calving.stress_threshold_groundedice= grounded_transient*ones(md.mesh.numberofvertices,1); %default 1 MPa = 1e6 Pa
+	    md.calving.stress_threshold_floatingice= floating_transient*ones(md.mesh.numberofvertices,1); %default Petermann 300 kPa, default ISSM 150 kpa
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
-	    md.frontalforcings.meltingrate=frontal_melt_transient; %only effective if front is grounded
+	    md.frontalforcings.meltingrate=frontal_melt_transient*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
     end
 
     %Basal Melt options
@@ -673,11 +681,12 @@ if perform(org,'Transient')
        save(['Outputs/' char(glacier) '_Transient'],'md','-v7.3')
 
         plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.TransientSolution(end).Vel, ...
-            'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask#2-4', md.results.TransientSolution(end).MaskIceLevelset<0, ...
+            'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask#2-5', md.results.TransientSolution(end).MaskIceLevelset<0, ...
+            'data', md.results.TransientSolution(end).Vel-md.results.TransientSolution(1).Vel,...
             'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
-            'data', mean_SMB, 'caxis#3', [-250 250], 'ncols', 4,'caxis#1-2', [0 max(md.results.TransientSolution(end).Vel)], ...
-            'title','Initial Velocity (m/yr)' , 'title','Final Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)', ...
-            'title', 'Mean SMB (mm/yr ice eq.)')
+            'data', mean_SMB, 'caxis#3-4', [-250 250], 'ncols', 5,'caxis#1-2', [0 max(md.results.TransientSolution(end).Vel)], ...
+            'title','Initial Velocity (m/yr)' , 'title','Final Velocity (m/yr)' , 'title', 'End velocity - Starting velocity (m/yr)', ...
+            'title', 'End thickness - Starting thickness (m)', 'title', 'Mean SMB (mm/yr ice eq.)')
 end
 
 
