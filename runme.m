@@ -1,11 +1,10 @@
-steps = [4];
-
+steps = [1:5];
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
 
-glacier = 'Jakobshavn'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -98,29 +97,29 @@ end
 
 parameterize_file = './Greenland.par';
 
-%%
+
 %% %%%%%%%%%%%%% Toggles and things %%%%%%%%%%%%%%
 
 %Transient
-nyrs = 10;
+nyrs = 2100-2098;
 
 %Timestepping
-timestep = 0.05;
+timestep = 0.08;
 outfreq = 1/timestep; % Annual output
 
 %%%% SMB %%%%
-nyrs_smb = 2100-2099; % End and start year of dataset
-smb_scenario = ['something'];
+nyrs_smb = 2100-2098; % End and start year of dataset
+smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 
 %%%% Basal Melt %%%%
+basal_melt_transient = 50;
 
-melt_transient = [];
-
+%%%% Frontal Melt %%%%
+frontal_melt_transient = [25*ones(md.mesh.numberofvertices,1)];
 
 %%%% Calving %%%%
-
-floating_transient = [];
-grounded_transient = [];
+floating_transient = [300e3*ones(md.mesh.numberofvertices,1)];
+grounded_transient = [1.08e6*ones(md.mesh.numberofvertices,1)];
 
 
 %%%% Model name %%%%
@@ -128,10 +127,7 @@ ModelName = 'testing';
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-%%
-%% %%%%%%%%%%%%%%% Step 1: Meshing %%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%% Step 1: Meshing %%%%%%%%%%%%%%%
 
 if perform(org,'Mesh')
 
@@ -198,7 +194,6 @@ end
 
 
 
-%%
 %% %%%%%%%%%%%%% Step 2: Parameterize %%%%%%%%%%%%
 if perform(org,'Parameterization')
 
@@ -216,7 +211,7 @@ if perform(org,'Parameterization')
     save(['Outputs/' char(glacier) '_Parameterization'],'md','-v7.3');
 
 end
-%%
+
 %% %%%%%%%%%%%%% Step 3: Stressbalance %%%%%%%%%%%
 
 if perform(org,'Stressbalance')
@@ -364,8 +359,8 @@ if perform(org,'Stressbalance')
 
 end
 
-%%
-%% %%%%%%%%%%%%%%% Step 4: Spin_UP %%%%%%%%%%%%%
+
+%% %%%%%%%%%%%%% Step 4: Spin_UP %%%%%%%%%%%%%
 
 if perform(org,'Spin_Up')
 
@@ -525,13 +520,174 @@ if perform(org,'Spin_Up')
        
 end
 
+%% %%%%%%%%%%%%% Step 5: Transient %%%%%%%%%%%%%
+
 if perform(org,'Transient')
 
     load(['Outputs/' char(glacier) '_Spinup'])
 
-    save(['Outputs/' char(glacier) '_' char(ModelName)],'md','-v7.3');
+    %Intial Velocities
+    md.initialization.vx = md.results.TransientSolution(end).Vx;
+    md.initialization.vy = md.results.TransientSolution(end).Vy;
+    md.initialization.vel = md.results.TransientSolution(end).Vel;
 
+    %Dont use damage model
+	md.damage.D=zeros(md.mesh.numberofvertices,1);
+	md.damage.spcdamage=NaN*ones(md.mesh.numberofvertices,1);
+
+	%Dont use thermal model
+	md.transient.isthermal=0;
+	md.thermal.spctemperature=NaN*ones(md.mesh.numberofvertices,1);
+
+	%Additional options
+	md.inversion.iscontrol=0;
+    
+    disp('Reading and interpolating SMB data')
+    
+    md.smb.mass_balance = [];
+    smbMAR = [];
+
+    switch smb_scenario
+        case{'ssp245'} 
+            smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        case{'ssp585'}
+            smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+    end
+
+    for yy=1:nyrs_smb*12 % Monthly data
+        smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
+        smbMAR = [smbMAR smboutput];
+    end
+   
+    pos=find(smbMAR==-9999);
+    smbMAR(pos)=0.0;
+          
+    md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
+        [0:1/12:(nyrs_smb)-(1/12)]]; % Monthly transient forcing
+    mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
+
+    %Make sure bed is below base
+    pos=find(md.geometry.bed>md.geometry.base);
+    md.geometry.base(pos)=md.geometry.bed(pos);
+
+    %Recalculate surface
+    md.geometry.surface=md.geometry.base+md.geometry.thickness;
+    
+    %Front and GL options
+    md.transient.ismovingfront=1;
+    md.transient.isgroundingline=1;
+    md.groundingline.migration='SubelementMigration';
+    md.groundingline.melt_interpolation='NoMeltOnPartiallyFloating';
+    md.groundingline.friction_interpolation='SubelementFriction1';	
+
+    isresetlevelset = 1;
+    md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
+    %%% Set levelset options %%%
+    if isresetlevelset == 1
+	    md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
+
+	    %Get mask from BedMachine
+	    M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+	    pos=find(M<2);
+	    md.mask.ice_levelset(pos)=+1; %set levelset for no-ice vertices
+	    %remove 0 in ice_levelset (advection will fail if used)
+	    md.mask.ice_levelset(find(md.mask.ice_levelset==0))=-1;
+
+	    %make it a signed distance
+	    md.mask.ice_levelset = reinitializelevelset(md,md.mask.ice_levelset);
+
+	    % Reset levelset boundary conditions on domain boundary
+	    md.levelset.spclevelset(find(md.mesh.vertexonboundary)) = md.mask.ice_levelset(find(md.mesh.vertexonboundary));
+    else 
+	    %dont touch the spclevelset, just keep what is from the previous model and do nothing here
+    end
+
+    if icelandspc == 1
+        md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
+        pos = find_iceLandBoundary(md, 1); %1=is2D
+        md.levelset.spclevelset(pos)=-1;
+    end
+
+    md.levelset.kill_icebergs=1;
+    %md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
+
+        %Calving options
+    if md.transient.ismovingfront==1
+	    md.calving=calvingvonmises(); %activate von mises calving law
+    
+	    %Stress threshold
+	    md.calving.stress_threshold_groundedice= grounded_transient; %default 1 MPa = 1e6 Pa
+	    md.calving.stress_threshold_floatingice= floating_transient; %default Petermann 300 kPa, default ISSM 150 kpa
+	    md.calving.min_thickness=50; %m, default NaN
+    
+	    %Define calving rate and melt rate (only effective if ismovingfront==1)
+	    md.frontalforcings.meltingrate=frontal_melt_transient; %only effective if front is grounded
+    end
+
+    %Basal Melt options
+    % Fixed melt
+    md.basalforcings=linearbasalforcings();
+	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.deepwater_melting_rate = basal_melt_transient;
+    md.basalforcings.deepwater_elevation = deep_depth;
+    md.basalforcings.upperwater_melting_rate = upper_melt;
+    md.basalforcings.upperwater_elevation = upper_depth;
+    md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
+
+
+    %Timestepping options
+
+    md.timestepping.cycle_forcing = 1;
+    md.timestepping = timestepping();
+    md.timestepping.time_step = timestep;
+    md.settings.output_frequency = outfreq; %yearly
+% 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
+    disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
+    md.timestepping.final_time=nyrs;
+
+    %Output options
+    md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
+        'IceVolume','IceVolumeAboveFloatation',...
+        'IceVolumeAboveFloatationScaled','GroundedAreaScaled',...
+        'MaskOceanLevelset','MaskIceLevelset',...
+        'FloatingAreaScaled','IceMass',...
+        'GroundedArea','FloatingArea','TotalFloatingBmb',...
+        'BasalforcingsFloatingiceMeltingRate',...
+        'TotalCalvingFluxLevelset',... %Gt/r
+        'GroundinglineMassFlux',... %Gt/yr
+        'CalvingMeltingrate','TotalCalvingMeltingFluxLevelset','IcefrontMassFluxLevelset',...
+        'TotalCalvingFluxLevelset','TotalGroundedBmb',...
+        'Calvingratex','Calvingratey','CalvingCalvingrate','SigmaVM'};
+    
+	    md.verbose=verbose('solution',true,'module',false,'convergence',false);
+
+        md.toolkits=toolkits();
+        md.toolkits.DefaultAnalysis=bcgslbjacobioptions();
+		md.cluster=generic('name',oshostname,'np',4);
+
+		%Solve
+		md=solve(md,'Transient');
+
+        %savemodel(org,md);
+       save(['Outputs/' char(glacier) '_Transient'],'md','-v7.3')
+
+        plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.TransientSolution(end).Vel, ...
+            'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask#2-4', md.results.TransientSolution(end).MaskIceLevelset<0, ...
+            'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
+            'data', mean_SMB, 'caxis#3', [-250 250], 'ncols', 4,'caxis#1-2', [0 max(md.results.TransientSolution(end).Vel)], ...
+            'title','Initial Velocity (m/yr)' , 'title','Final Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)', ...
+            'title', 'Mean SMB (mm/yr ice eq.)')
 end
+
+
+
+
+
+
+
+
+
 
 
 
