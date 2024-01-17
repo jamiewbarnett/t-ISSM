@@ -52,10 +52,15 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
 
  <img width="1582" src="./Screenshots/step3.png">
 
-
-
 ## Step 4: Spin it up
 
+- In the spin-up stage, we try to set parameters such as those relating to calving and frontal melt at values which lead to a stable glacier
+- This stable position is then our starting point for any future transient simulations
+- Spinning up a glacier is useful as it means that the way your glacier behaves in the model once you implement your forcings can be likely attributed to said forcings rather than to model drift
+- The spin-up parameters for each glacier have been set for you, and these sounds give acceptable spun-up glaciers
+- If this was to be a 'real' study, you would probably spend a lot more time on the spin-up and could no doubt find a set of parameters that yield an even better spun-up state
+
+- At the end of this step, you should see something like the following:
 
 # Task 3: Design and run some transient simulations
 
@@ -66,10 +71,16 @@ Email felicity.holmes@geo.su.se and jamie.barnett@geo.su.se if you have question
   - Under which climate scenarios does the glacier lose its floating ice tongue?
  
 - You need to think about which forcings you can change, and look at the datasets available
-- Some things you can change are SMB (e.g. different SSPs), basal melt under ice tongues, frontal melt along grounded termini, calving stress threshold
-- It is also a good idea to do a bit of reading about your chosen glacier to understand which type of question might be relevant and/or interesting
+- Some things you can change are:
+    - SMB (e.g. different SSPs)
+    - Basal melt under ice tongues
+    - Frontal melt along grounded termini
+    - Calving stress thresholds for floating and grounded ice
+  
+- It is a good idea to do a bit of reading about your chosen glacier to understand which type of question might be relevant and/or interesting
+- You also need to consider how many simulations you need to run to answer your research question
 
-- Once you have decided on the question(s) to investigate, you need to think about what forcings/parameters you need to change in the `runme` script, and how many simulations you want to run
+- Once you have decided on the question(s) to investigate, you need to change the relevant parameters in the header section of the `runme` script
 
 - Make sure to keep good notation about which simulations you run 
 
