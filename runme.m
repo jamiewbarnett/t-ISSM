@@ -1,10 +1,19 @@
-steps = [1:5];
+steps = [5];
+
+%To Do:
+%Racmo??
+%Transient Calving
+%Zip of model data
+%Complete Ryder Transient
+%Seasonal Melt
+
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
+
 % Type the glacier you want to model below
 
-glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -111,25 +120,20 @@ end
 
 parameterize_file = './Greenland.par';
 
-
+%% %%%%%%%%%%%%% Transient Toggles %%%%%%%%%%%%%%%%
 % Parameters to play with for the transient simulations (step 5)
 
 %Transient
-nyrs = 2100-2098;
-
-%Timestepping
-timestep = 1/12; %Monthly timestep
-outfreq = 1/timestep; % Annual output
+final_year = 2100; % Start year is 2024 and max possible final year 2100
 
 %%%% SMB %%%%
-nyrs_smb = 2100-2098; % End and start year of dataset
 smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 
-%%%% Basal Melt %%%%
-basal_melt_transient = 50;
+%%%% Basal Melt %%%% 
+basal_melt_transient = 50; %m/yr
 
-%%%% Frontal Melt %%%%
-frontal_melt_transient = 25;
+%%%% Frontal Melt %%%% 
+frontal_melt_transient = 25; %m/yr
 
 %%%% Calving %%%%
 floating_transient = 325e3;
@@ -250,8 +254,9 @@ if perform(org,'Stressbalance')
 
     %Set Ice Boundary conditions
     pos=find(md.mesh.vertexonboundary & M>=2);
-    md.stressbalance.spcvx(pos)=0; %no west/east flow
-    md.stressbalance.spcvy(pos)=0; %no north/south flow
+    md.stressbalance.spcvx(pos)=md.inversion.vx_obs(pos);
+    md.stressbalance.spcvy(pos)=md.inversion.vy_obs(pos);
+    md.masstransport.spcthickness(pos) = md.geometry.thickness(pos);
 
 
     %Set Dirichlet for Non-ice vertices
@@ -486,8 +491,8 @@ if perform(org,'Spin_Up')
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = timestep;
-    md.settings.output_frequency = outfreq; %yearly
+    md.timestepping.time_step = 1/12;
+    md.settings.output_frequency = 12; %yearly
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
@@ -563,7 +568,7 @@ if perform(org,'Transient')
             smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
     end
 
-    for yy=1:nyrs_smb*12 % Monthly data
+    for yy=121:((final_year-2024)+10)*12 % Monthly data
         smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
         smbMAR = [smbMAR smboutput];
     end
@@ -572,7 +577,7 @@ if perform(org,'Transient')
     smbMAR(pos)=0.0;
           
     md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
-        [0:1/12:(nyrs_smb)-(1/12)]]; % Monthly transient forcing
+        [2024:1/12:final_year-(1/12)]]; % Monthly transient forcing
     mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
 
     %Make sure bed is below base
@@ -648,11 +653,12 @@ if perform(org,'Transient')
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = timestep;
-    md.settings.output_frequency = outfreq; %yearly
+    md.timestepping.time_step = 1/12;
+    md.settings.output_frequency = 12; %yearly
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
-    md.timestepping.final_time=nyrs;
+    md.timestepping.start_time = 2024;
+    md.timestepping.final_time=final_year;
 
     %Output options
     md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
