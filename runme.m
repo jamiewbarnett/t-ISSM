@@ -2,18 +2,15 @@ steps = [5];
 
 %To Do:
 %Racmo??
-%Transient Calving
 %Zip of model data
 %Complete Ryder Transient
 %Seasonal Melt
-
-
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 
 % Type the glacier you want to model below
 
-glacier = 'Helheim'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -124,7 +121,7 @@ parameterize_file = './Greenland.par';
 % Parameters to play with for the transient simulations (step 5)
 
 %Transient
-final_year = 2100; % Start year is 2024 and max possible final year 2100
+final_year = 2025; % Start year is 2024 and max possible final year 2100
 
 %%%% SMB %%%%
 smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
@@ -136,9 +133,10 @@ basal_melt_transient = 50; %m/yr
 frontal_melt_transient = 25; %m/yr
 
 %%%% Calving %%%%
-floating_transient = 325e3;
-grounded_transient = 5e5;
-
+floating_transient_sigmaMax = [325e3 275e3];
+floating_transient_time = [1 2]; % Times to apply the change in sigma max
+grounded_transient_sigmaMax = [5e5 3e5];
+grounded_transient_time =[1 2]; % Times to apply the change in sigma max
 
 %%%% Model name %%%%
 ModelName = 'testing';
@@ -628,9 +626,19 @@ if perform(org,'Transient')
         %Calving options
     if md.transient.ismovingfront==1
 	    md.calving=calvingvonmises(); %activate von mises calving law
-	    %Stress threshold
-	    md.calving.stress_threshold_groundedice= grounded_transient*ones(md.mesh.numberofvertices,1); %default 1 MPa = 1e6 Pa
-	    md.calving.stress_threshold_floatingice= floating_transient*ones(md.mesh.numberofvertices,1); %default Petermann 300 kPa, default ISSM 150 kpa
+
+        md.calving.stress_threshold_floatingice=[];
+        for i=1:length(floating_transient_sigmaMax)
+            md.calving.stress_threshold_floatingice=[md.calving.stress_threshold_floatingice floating_transient_sigmaMax(i)*ones(md.mesh.numberofvertices,1)];
+        end
+        md.calving.stress_threshold_floatingice=[md.calving.stress_threshold_floatingice; floating_transient_time];
+
+        md.calving.stress_threshold_groundedice=[];
+        for i=1:length(grounded_transient_sigmaMax)
+            md.calving.stress_threshold_groundedice=[md.calving.stress_threshold_groundedice grounded_transient_sigmaMax(i)*ones(md.mesh.numberofvertices,1)];
+        end
+        md.calving.stress_threshold_groundedice=[md.calving.stress_threshold_groundedice; grounded_transient_time];
+	    
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
@@ -648,9 +656,7 @@ if perform(org,'Transient')
     md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
 	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
 
-
     %Timestepping options
-
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
     md.timestepping.time_step = 1/12;
