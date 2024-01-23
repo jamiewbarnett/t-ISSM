@@ -1,4 +1,4 @@
-steps = [5];
+steps = [4];
 
 %To Do:
 %Racmo??
@@ -6,6 +6,7 @@ steps = [5];
 %Zip of model data
 %Complete Ryder Transient
 %Seasonal Melt
+%Add spc vel and thickness - twice in Stressbalance
 
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -25,6 +26,7 @@ switch glacier
         fjordmesh = 1500;
         sigma_grounded = 1e6;
         sigma_floating = 400e3;
+        seasonalmelt = 0;
         deep_melt = 40;
         deep_depth = -600;
         upper_melt = 0;
@@ -39,12 +41,13 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e7;
         sigma_floating = 300e3;
-        deep_melt = 100/2;
+        seasonalmelt = 1;
+        deep_melt = 4*365; %4 m/day
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 20;
+        nyrs_spinUp = 10;
     case{'Kangerlussuaq'}%Jamie
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
@@ -53,12 +56,14 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1e7;
         sigma_floating = 300e3;
+        seasonalmelt = 0;
         deep_melt = 400/2;
+        seasonalmelt = 0;
         deep_depth = -800;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 20;
+        nyrs_spinUp = 2;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -67,6 +72,7 @@ switch glacier
         fjordmesh = 750;
         sigma_grounded = 1e6;
         sigma_floating = 400e3;
+        seasonalmelt = 0;
         deep_melt = 45;
         deep_depth = -500;
         upper_melt = 0;
@@ -80,6 +86,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 1.08e6;
         sigma_floating = 300e3;
+        seasonalmelt = 0;
         deep_melt = 200;
         deep_depth = -300;
         upper_melt = 0;
@@ -108,6 +115,7 @@ switch glacier
         fjordmesh = 500;
         sigma_grounded = 5e5;
         sigma_floating = 325e3;
+        seasonalmelt = 0;
         deep_melt = 25;
         deep_depth = -300;
         upper_melt = 0;
@@ -251,20 +259,17 @@ if perform(org,'Stressbalance')
     %Set spcthickness to NaN
     md.masstransport.spcthickness=NaN(md.mesh.numberofvertices,1);
     
-
     %Set Ice Boundary conditions
     pos=find(md.mesh.vertexonboundary & M>=2);
-    md.stressbalance.spcvx(pos)=md.inversion.vx_obs(pos);
-    md.stressbalance.spcvy(pos)=md.inversion.vy_obs(pos);
-    md.masstransport.spcthickness(pos) = md.geometry.thickness(pos);
-
+    md.stressbalance.spcvx(pos)= 0;%md.inversion.vx_obs(pos);
+    md.stressbalance.spcvy(pos)= 0;%md.inversion.vy_obs(pos);
+    %md.masstransport.spcthickness(pos) = md.geometry.thickness(pos);
 
     %Set Dirichlet for Non-ice vertices
     pos = find(M==1 | ~isnan(md.stressbalance.spcvx));
     md.stressbalance.spcvx(pos)=md.inversion.vx_obs(pos);
     md.stressbalance.spcvy(pos)=md.inversion.vy_obs(pos);
-
-    
+   
     %%% PERFORM INVERSION %%%
     disp('Inverting for Friction')
 
@@ -432,7 +437,6 @@ if perform(org,'Spin_Up')
     md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
     %%% Set levelset options %%%
     if isresetlevelset == 1
-
 	    md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
 
 	    %Get mask from BedMachine
@@ -457,7 +461,36 @@ if perform(org,'Spin_Up')
         md.levelset.spclevelset(pos)=-1;
     end
 
-    md.levelset.kill_icebergs=1;
+    if seasonalmelt == 1
+        melt_year = [(0.6*365) (0.6*365) deep_melt/2 (0.6*365)];     %Winter melt 0.6 * 365 Rignot et al. 2016
+        melt_front = repmat(melt_year,md.mesh.numberofvertices,nyrs_spinUp);
+        melt_base = repmat(melt_year,1,nyrs_spinUp);
+        melt_time = [0 (1/12)*5 (1/12)*8 (1/12)*11];
+        
+        for i = 1:(nyrs_spinUp-1)
+            melt_time = [melt_time (melt_time(:,1:4) + i)];
+        end
+
+        melt_front = [melt_front; melt_time];
+        melt_base = [melt_base; melt_time];
+    else
+        melt_front = (deep_melt/2)*ones(md.mesh.numberofvertices,1);
+        melt_base = deep_melt;
+    end
+
+    %Basal Melt options
+    % Fixed melt
+    md.basalforcings=linearbasalforcings();
+	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.deepwater_melting_rate = melt_base;
+    md.basalforcings.deepwater_elevation = deep_depth;
+    md.basalforcings.upperwater_melting_rate = upper_melt;
+    md.basalforcings.upperwater_elevation = upper_depth;
+    md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
+
+
+     md.levelset.kill_icebergs=1;
     %md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
 
         %Calving options
@@ -472,27 +505,16 @@ if perform(org,'Spin_Up')
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
-	    md.frontalforcings.meltingrate=deep_melt*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
+	    md.frontalforcings.meltingrate=melt_front; %only effective if front is grounded
     end
-
-    %Basal Melt options
-    % Fixed melt
-    md.basalforcings=linearbasalforcings();
-	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
-	md.basalforcings.deepwater_melting_rate = deep_melt;
-    md.basalforcings.deepwater_elevation = deep_depth;
-    md.basalforcings.upperwater_melting_rate = upper_melt;
-    md.basalforcings.upperwater_elevation = upper_depth;
-    md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
-	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
 
 
     %Timestepping options
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = 1/12;
-    md.settings.output_frequency = 12; %yearly
+    md.timestepping.time_step = 0.05; %Dont lower or else Helheim/Kanger explode!
+    md.settings.output_frequency = 1/0.05; %yearly
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
@@ -653,8 +675,8 @@ if perform(org,'Transient')
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = 1/12;
-    md.settings.output_frequency = 12; %yearly
+    md.timestepping.time_step = 0.05;
+    md.settings.output_frequency = 1/0.05; %yearly
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
     md.timestepping.start_time = 2024;
