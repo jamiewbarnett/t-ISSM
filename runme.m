@@ -5,12 +5,8 @@ steps = [4];
 %Zip of model data
 %Complete Ryder Transient
 %Seasonal Melt
-<<<<<<< HEAD
 %Add spc vel and thickness - twice in Stressbalance
 
-
-=======
->>>>>>> 66a4aa306c44b6f3a18b1daa89d3ae72bc45275b
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 
