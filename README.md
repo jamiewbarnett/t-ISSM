@@ -1,6 +1,8 @@
 # t-ISSM: Glacier fun with J-man and Felis 
 Email jamie.barnett@geo.su.se and felicity.holmes@geo.su.se if you have questions
 
+Before doing this exercise, you will need to get the relevant ISSM binaries from [here](https://issm.jpl.nasa.gov/download/binaries/), and download all the necessary data for running the simulations from [here](https://stockholmuniversity.app.box.com/folder/245521938798?s=hlupsyfabz5gnro0n8gjehwz66ws6mus).
+
 # Task 1: Choose your pokemon (glacier)
 
 - For this exercise, each group will choose one of the following glaciers to model:
