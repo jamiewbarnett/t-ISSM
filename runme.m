@@ -4,7 +4,8 @@ steps = [4];
 %Racmo??
 %Zip of model data
 %Complete Ryder Transient
-%Seasonal Melt
+%Seasonal Melt Spin up
+%Seasonal Melt Transient
 %Add spc vel and thickness - twice in Stressbalance
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
@@ -12,7 +13,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Kangerlussuaq'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -37,10 +38,10 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e7;
+        sigma_grounded = 1e8;
         sigma_floating = 300e3;
         seasonalmelt = 1;
-        deep_melt = 4*365; %4 m/day
+        deep_melt = 1*365; 
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
@@ -52,16 +53,15 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e7;
+        sigma_grounded = 8e6;
         sigma_floating = 300e3;
-        seasonalmelt = 0;
-        deep_melt = 400/2;
-        seasonalmelt = 0;
+        seasonalmelt = 1;
+        deep_melt = 4*365; %4 m/day
         deep_depth = -800;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 2;
+        nyrs_spinUp = 25;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -260,9 +260,9 @@ if perform(org,'Stressbalance')
     
     %Set Ice Boundary conditions
     pos=find(md.mesh.vertexonboundary & M>=2);
-    md.stressbalance.spcvx(pos)= 0;%md.inversion.vx_obs(pos);
-    md.stressbalance.spcvy(pos)= 0;%md.inversion.vy_obs(pos);
-    %md.masstransport.spcthickness(pos) = md.geometry.thickness(pos);
+    md.stressbalance.spcvx(pos)= md.inversion.vx_obs(pos);
+    md.stressbalance.spcvy(pos)= md.inversion.vy_obs(pos);
+    md.masstransport.spcthickness(pos) = md.geometry.thickness(pos);
 
     %Set Dirichlet for Non-ice vertices
     pos = find(M==1 | ~isnan(md.stressbalance.spcvx));
@@ -354,8 +354,8 @@ if perform(org,'Stressbalance')
     pos=find(md.mesh.vertexonboundary & M>=1);
     
     %Set Dirichlet
-    md.stressbalance.spcvx(pos)=0; %no west/east flow
-    md.stressbalance.spcvy(pos)=0; %no north/south flow
+    md.stressbalance.spcvx(pos)= md.inversion.vx_obs(pos);
+    md.stressbalance.spcvy(pos)= md.inversion.vy_obs(pos);
 
 
     %REMOVE dirichlet conditions on non-ice vertices
@@ -461,7 +461,7 @@ if perform(org,'Spin_Up')
     end
 
     if seasonalmelt == 1
-        melt_year = [(0.6*365) (0.6*365) deep_melt/2 (0.6*365)];     %Winter melt 0.6 * 365 Rignot et al. 2016
+        melt_year = [(0.2*365)/2 (0.2*365)/2 deep_melt/2 (0.2*365)/2];     %Winter melt 0.6 * 365 Rignot et al. 2016  [(0.6*365) (0.6*365) deep_melt/2 (0.6*365)]; 
         melt_front = repmat(melt_year,md.mesh.numberofvertices,nyrs_spinUp);
         melt_base = repmat(melt_year,1,nyrs_spinUp);
         melt_time = [0 (1/12)*5 (1/12)*8 (1/12)*11];
@@ -512,8 +512,8 @@ if perform(org,'Spin_Up')
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = 0.05; %Dont lower or else Helheim/Kanger explode!
-    md.settings.output_frequency = 1/0.05; %yearly
+    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = 2; %yearly
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
