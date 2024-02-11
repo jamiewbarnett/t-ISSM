@@ -4,7 +4,7 @@ steps = [4];
 %Racmo??
 %Zip of model data
 %Complete Ryder Transient
-%Seasonal Melt Spin up
+%Seasonal Melt Spin up - done!
 %Seasonal Melt Transient
 %Add spc vel and thickness - twice in Stressbalance
 
@@ -38,15 +38,15 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 1e8;
+        sigma_grounded = 5e7;
         sigma_floating = 300e3;
         seasonalmelt = 1;
-        deep_melt = 1*365; 
+        deep_melt = 1*365; %1m/day
         deep_depth = -600;
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 10;
+        nyrs_spinUp = 50;
     case{'Kangerlussuaq'}%Jamie
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
@@ -61,7 +61,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 25;
+        nyrs_spinUp = 75;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -513,7 +513,7 @@ if perform(org,'Spin_Up')
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
     md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
-    md.settings.output_frequency = 2; %yearly
+    md.settings.output_frequency = 2; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
@@ -553,6 +553,7 @@ if perform(org,'Spin_Up')
             'data', md.results.TransientSolution(end).MaskOceanLevelset, 'caxis#3', [-250 250] , 'caxis#4', [-1 1], 'ncols', 4,...
             'title','Observed Velocity (m/yr)' , 'title','Modelled Velocity (m/yr)' , 'title', 'End thickness - Starting thickness (m)' , 'title', 'Ocean mask' )
        
+
 end
 
 %% %%%%%%%%%%%%% Step 5: Transient %%%%%%%%%%%%%
