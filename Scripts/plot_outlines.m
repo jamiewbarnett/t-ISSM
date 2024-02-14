@@ -3,12 +3,8 @@ function output = plot_outlines(md,flowline)
 %defined flow line
 %
 %   usage = plot_outlines(md,'EXPFILE')
-%
-
-%test = buildlist(test,varargin)
 
 % if no flowline exp given, default to ryder.
-
 % if exist(varargin,'flowline')
 %     flowline = varargin{'flowline'};
 % else

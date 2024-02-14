@@ -561,6 +561,9 @@ if perform(org,'Transient')
 
     load(['Outputs/' char(glacier) '_Spinup'])
 
+    %set some things
+    md.miscellaneous.name = [char(glacier) '_' char(ModelName)];
+
     %Intial Velocities
     md.initialization.vx = md.results.TransientSolution(end).Vx;
     md.initialization.vy = md.results.TransientSolution(end).Vy;
@@ -755,7 +758,7 @@ if perform(org,'Transient')
 		md=solve(md,'Transient');
 
         %savemodel(org,md);
-       save(['Outputs/' char(glacier) '_Transient'],'md','-v7.3')
+       save(['Outputs/' char(glacier) '_' ModelName],'md','-v7.3')
 
         plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.TransientSolution(end).Vel, ...
             'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask#2-5', md.results.TransientSolution(end).MaskIceLevelset<0, ...
