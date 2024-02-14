@@ -1,4 +1,4 @@
-steps = [4];
+steps = [5];
 
 %To Do:
 %Racmo??
@@ -13,7 +13,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Jakobshavn'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Kangerlussuaq'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -31,7 +31,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 20;
+        nyrs_spinUp = 50;
     case{'Helheim'}%Jamie
         exp_file = './Exp/helheim.exp';
         flowline_file = './Exp/helheim_flowline.exp';
@@ -130,22 +130,20 @@ parameterize_file = './Greenland.par';
 % Parameters to play with for the transient simulations (step 5)
 
 %Transient
-final_year = 2025; % Start year is 2024 and max possible final year 2100
+final_year = 2100; % Start year is 2024 and max possible final year 2100
 
 %%%% SMB %%%%
 smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 
-%%%% Basal Melt %%%% 
-basal_melt_transient = 50; %m/yr
-
-%%%% Frontal Melt %%%% 
-frontal_melt_transient = 25; %m/yr
+%%%% Submarine Melt %%%% 
+melt_transient = [4*365 6*365]; %m/yr
+melt_transient_time = [2024 2050];
 
 %%%% Calving %%%%
 floating_transient_sigmaMax = [325e3 275e3];
-floating_transient_time = [1 2]; % Times to apply the change in sigma max
+floating_transient_time = [2024 2050]; % Times to apply the change in sigma max
 grounded_transient_sigmaMax = [5e5 3e5];
-grounded_transient_time =[1 2]; % Times to apply the change in sigma max
+grounded_transient_time =[2024 2050]; % Times to apply the change in sigma max
 
 %%%% Model name %%%%
 ModelName = 'testing';
@@ -460,7 +458,7 @@ if perform(org,'Spin_Up')
         md.levelset.spclevelset(pos)=-1;
     end
 
-    if seasonalmelt == 1
+     if seasonalmelt == 1
         melt_year = [(0.2*365)/2 (0.2*365)/2 deep_melt/2 (0.2*365)/2];     %Winter melt 0.6 * 365 Rignot et al. 2016  [(0.6*365) (0.6*365) deep_melt/2 (0.6*365)]; 
         melt_front = repmat(melt_year,md.mesh.numberofvertices,nyrs_spinUp);
         melt_base = repmat(melt_year,1,nyrs_spinUp);
@@ -476,6 +474,7 @@ if perform(org,'Spin_Up')
         melt_front = (deep_melt/2)*ones(md.mesh.numberofvertices,1);
         melt_base = deep_melt;
     end
+        
 
     %Basal Melt options
     % Fixed melt
@@ -647,6 +646,58 @@ if perform(org,'Transient')
     md.levelset.kill_icebergs=1;
     %md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
 
+    % Calculate annual change in melt rates
+    melt_transient_change = [];
+    for i = 1:length(melt_transient) %iterate through melt_transient and fill in annual gaps in melt change linnearly 
+        if i ~= length(melt_transient_time)
+            diff = melt_transient(i+1)-melt_transient(i);
+            time_diff = melt_transient_time(i+1) - melt_transient_time(i);
+            rate = diff/time_diff;
+            melt_transient_change = [melt_transient_change melt_transient(i)];
+            for j = 1:time_diff-1
+                melt_transient_change = [melt_transient_change melt_transient(i)+(j*rate)];
+            end
+        else
+            melt_transient_change = [melt_transient_change repmat(melt_transient(i),1, (final_year-melt_transient_time(i)))];
+        end
+    end
+
+    %Set front and base melt to vary seasonally or maintain annual values
+    melt_front = [];
+    melt_base = [];
+    melt_year = [];
+    melt_time = [];
+    if seasonalmelt == 1
+        for i = 1:length(melt_transient_change)
+            melt_year = [melt_year (0.2*365)/2 (0.2*365)/2 melt_transient_change(i)/2 (0.2*365)/2];
+        end
+        melt_front = repmat(melt_year,md.mesh.numberofvertices,1);
+        melt_base = melt_year;
+        for i = 2024:(final_year-1)
+            melt_time = [melt_time ([0 (1/12)*5 (1/12)*8 (1/12)*11]+ i)];
+        end    
+        melt_front = [melt_front; melt_time];
+        melt_base = [melt_base; melt_time];
+    else
+        melt_front = repmat((melt_transient_change/2),md.mesh.numberofvertices,1);
+        melt_base = melt_transient_change;
+        melt_time = 2024:final_year-1;
+        melt_front = [melt_front; melt_time];
+        melt_base = [melt_base; melt_time];
+    end
+
+    %Basal Melt options
+    % Fixed melt
+    md.basalforcings=linearbasalforcings();
+	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.deepwater_melting_rate = melt_base;
+    md.basalforcings.deepwater_elevation = deep_depth;
+    md.basalforcings.upperwater_melting_rate = upper_melt;
+    md.basalforcings.upperwater_elevation = upper_depth;
+    md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
+	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
+
+
         %Calving options
     if md.transient.ismovingfront==1
 	    md.calving=calvingvonmises(); %activate von mises calving law
@@ -666,20 +717,10 @@ if perform(org,'Transient')
 	    md.calving.min_thickness=50; %m, default NaN
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
-	    md.frontalforcings.meltingrate=frontal_melt_transient*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
+	    md.frontalforcings.meltingrate=melt_front; %only effective if front is grounded
     end
 
-    %Basal Melt options
-    % Fixed melt
-    md.basalforcings=linearbasalforcings();
-	%md.basalforcings.floatingice_melting_rate=zeros(md.mesh.numberofvertices,1);
-	md.basalforcings.deepwater_melting_rate = basal_melt_transient;
-    md.basalforcings.deepwater_elevation = deep_depth;
-    md.basalforcings.upperwater_melting_rate = upper_melt;
-    md.basalforcings.upperwater_elevation = upper_depth;
-    md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
-	md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
-
+    
     %Timestepping options
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
