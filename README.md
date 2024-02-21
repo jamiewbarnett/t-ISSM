@@ -64,6 +64,8 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 - At the end of this step, you should see something like the following:
 
+ <img width="1582" src="./Screenshots/step4.png">
+
 # Task 3: Design and run some transient simulations
 
 - For the transient simulations, you need to decide as a group what you want to investigate
