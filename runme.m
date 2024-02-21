@@ -108,9 +108,9 @@ switch glacier
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
-        hmin = 500;
+        hmin = 750;
         hmax = 10000;
-        fjordmesh = 500;
+        fjordmesh = 750;
         sigma_grounded = 5e5;
         sigma_floating = 325e3;
         seasonalmelt = 0;
@@ -119,7 +119,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 1;
-        nyrs_spinUp = 10;
+        nyrs_spinUp = 50;
         %flowline_file = '';
 end
 
@@ -376,7 +376,7 @@ if perform(org,'Stressbalance')
 
 end
 
-%% %%%%%%%%%%%%% Step 4: Spin_UP %%%%%%%%%%%%%
+%% %%%%%%%%%%%%% Step 4: Spin_Up %%%%%%%%%%%%%
 if perform(org,'Spin_Up')
 
     load(['Outputs/' char(glacier) '_Stressbalance'])
