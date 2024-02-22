@@ -13,7 +13,7 @@ steps = [4];
 
 % Type the glacier you want to model below
 
-glacier = 'Jakobshavn'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
