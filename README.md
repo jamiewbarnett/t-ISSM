@@ -90,6 +90,16 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 # Task 4: Analyse your results
 
+There are several scripts, detailed below, that you can use to help you analyse your results:
+
+1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'EXPFILE')`, where the second argument is the path to the .exp file detailing your flowline.
+2) `plot_output` - This creates a series of line plots showing how several variables evolve with time during your simulation. Usage is as follows: `plot_output` (no input variables required, but assumes a model named 'md' is loaded into the workspace).
+3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`. 
+
+You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being can be seen in the `runme` file.
+
+A helpful resource for plotting tips is the ISSM website [here](https://issm.jpl.nasa.gov/documentation/plotmatlab/). 
+
 # Task 5: Make a presentation
 
 - Each group should make a c. 20-25 minute presentation about their modelling project
