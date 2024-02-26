@@ -18,6 +18,8 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 # Task 2: Run model to spun-up state 
 
+- The code for this task has already been written and will provide you with a spun up glacier in a similar position and state as it is found in 2024
+
 - Open up matlab, and navigate to the t-issm directory and open the 'runme.m' file - this is where you will work from for this exercise
 - Make sure all the ISSM source code AND the t-issm directory is on your Matlab PATH
 
@@ -59,10 +61,10 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 - In the spin-up stage, we try to set parameters such as those relating to calving and frontal melt at values which lead to a stable glacier
 - This stable position is then our starting point for any future transient simulations
 - Spinning up a glacier is useful as it means that the way your glacier behaves in the model once you implement your forcings can be likely attributed to said forcings rather than to model drift
-- The spin-up parameters for each glacier have been set for you, and these sounds give acceptable spun-up glaciers
+- The spin-up parameters for each glacier have been set for you and are found at the top of the run me script. The parameters are chosen to give a spun-up state that is similar to how the glacier behaved in persent day
 - If this was to be a 'real' study, you would probably spend a lot more time on the spin-up and could no doubt find a set of parameters that yield an even better spun-up state
 
-- At the end of this step, you should see something like the following:
+- At the end of this step, you should see the following plot which shows how your glacier has changed over the course of the spin up:
 
  <img width="1582" src="./Screenshots/step4.png">
 
@@ -70,7 +72,7 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 - For the transient simulations, you need to decide as a group what you want to investigate
 - Examples of questions you could answer are things like:
-  - What are the differences in glacier behaviour up to 2050 under a low vs high emissions future scenario?
+  - What are the differences in glacier behaviour up to 2050/2100 under a low vs high emissions future scenario?
   - Is the glacier more sensitive to changes in ocean thermal forcing or to changes in SMB?
   - Under which climate scenarios does the glacier lose its floating ice tongue?
  
