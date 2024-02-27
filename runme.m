@@ -1,4 +1,4 @@
-steps = [1:4];
+steps = [5];
 
 %To Do:
 %Racmo??
@@ -47,13 +47,13 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
-    case{'Kangerlussuaq'}%Jamie
+    case{'Kangerlussuaq'}%Jamie %Not finshied
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 8e6;
+        sigma_grounded = 8.5e6;
         sigma_floating = 300e3;
         seasonalmelt = 1;
         deep_melt = 4*365; %4 m/day
@@ -61,7 +61,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 75;
+        nyrs_spinUp = 30;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -130,20 +130,20 @@ parameterize_file = './Greenland.par';
 % Parameters to play with for the transient simulations (step 5)
 
 %Transient
-final_year = 2100; % Start year is 2024 and max possible final year 2100
+final_year = 2030; % Start year is 2024 and max possible final year 2100
 
 %%%% SMB %%%%
 smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 
 %%%% Submarine Melt %%%% 
-melt_transient = [4*365 6*365]; %m/yr
-melt_transient_time = [2024 2050];
+melt_transient = [25]; %m/yr
+melt_transient_time = [2024];
 
 %%%% Calving %%%%
-floating_transient_sigmaMax = [325e3 275e3];
-floating_transient_time = [2024 2050]; % Times to apply the change in sigma max
-grounded_transient_sigmaMax = [5e5 3e5];
-grounded_transient_time =[2024 2050]; % Times to apply the change in sigma max
+floating_transient_sigmaMax = [325e3 325e3 100e3];
+floating_transient_time =  [2024 2026 2028];% Times to apply the change in sigma max
+grounded_transient_sigmaMax =  [5e5; 5e5];
+grounded_transient_time = [2024 2028];% Times to apply the change in sigma max
 
 %%%% Model name %%%%
 ModelName = 'testing';
@@ -727,12 +727,14 @@ if perform(org,'Transient')
     %Timestepping options
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = 0.05;
-    md.settings.output_frequency = 1/0.05; %yearly
+    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = 2; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
     md.timestepping.start_time = 2024;
     md.timestepping.final_time=final_year;
+
+
 
     %Output options
     md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...

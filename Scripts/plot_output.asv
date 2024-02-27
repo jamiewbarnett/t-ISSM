@@ -69,7 +69,7 @@ title('Mean frontal velocity (blue) (m/yr) and Calving rate (green)');
 xlabel('Simulation years');
 
 subplot(5,1,2);
-plot(time, distance, 'color', 'c', 'linewidth', 2)
+plot(time, distance, 'color', 'y', 'linewidth', 2)
 hold on 
 yyaxis right;
 plot(time, volume, 'color', 'r', 'linewidth', 2)
