@@ -18,6 +18,8 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 # Task 2: Run model to spun-up state 
 
+- The code for this task has already been written and will provide you with a spun up glacier in a similar position and state as it is found in 2024
+
 - Open up matlab, and navigate to the t-issm directory and open the 'runme.m' file - this is where you will work from for this exercise
 - Make sure all the ISSM source code AND the t-issm directory is on your Matlab PATH
 
@@ -59,16 +61,18 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 - In the spin-up stage, we try to set parameters such as those relating to calving and frontal melt at values which lead to a stable glacier
 - This stable position is then our starting point for any future transient simulations
 - Spinning up a glacier is useful as it means that the way your glacier behaves in the model once you implement your forcings can be likely attributed to said forcings rather than to model drift
-- The spin-up parameters for each glacier have been set for you, and these sounds give acceptable spun-up glaciers
+- The spin-up parameters for each glacier have been set for you and are found at the top of the run me script. The parameters are chosen to give a spun-up state that is similar to how the glacier behaved in persent day
 - If this was to be a 'real' study, you would probably spend a lot more time on the spin-up and could no doubt find a set of parameters that yield an even better spun-up state
 
-- At the end of this step, you should see something like the following:
+- At the end of this step, you should see the following plot which shows how your glacier has changed over the course of the spin up:
+
+ <img width="1582" src="./Screenshots/step4.png">
 
 # Task 3: Design and run some transient simulations
 
 - For the transient simulations, you need to decide as a group what you want to investigate
 - Examples of questions you could answer are things like:
-  - What are the differences in glacier behaviour up to 2050 under a low vs high emissions future scenario?
+  - What are the differences in glacier behaviour up to 2050/2100 under a low vs high emissions future scenario?
   - Is the glacier more sensitive to changes in ocean thermal forcing or to changes in SMB?
   - Under which climate scenarios does the glacier lose its floating ice tongue?
  
@@ -88,13 +92,26 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 # Task 4: Analyse your results
 
+Once you have run your simulations, it is time to analyse your results. Try to make comparisons between our different simulations and use a variety of different types of plots/graphs. 
+
+There are several scripts included in t-ISSM, detailed below, that you can use to help you analyse your results:
+
+1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'EXPFILE')`, where the second argument is the path to the .exp file detailing your flowline.
+2) `plot_output` - This creates a series of line plots showing how several variables evolve with time during your simulation. Usage is as follows: `plot_output` (no input variables required, but assumes a model named 'md' is loaded into the workspace).
+3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`. 
+
+You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file.
+
+A helpful resource for plotting tips is the ISSM website [here](https://issm.jpl.nasa.gov/documentation/plotmatlab/). 
+
 # Task 5: Make a presentation
 
 - Each group should make a c. 20-25 minute presentation about their modelling project
+- Every group member should take part in the oral presentation
 - Include the following in your presentations:
     - Background on your glacier
     - Scientific questions
-    - Model set-up xperimental design; how did your set up your model to address your chosen question(s)?
+    - Model set-up and experimental design; how did your set up your model to address your chosen question(s)?
       - Also include information on forcings here (e.g. SMB, melt rates)
     - Results
     - Conclusions and what you would do next if you had more time
