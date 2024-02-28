@@ -73,7 +73,7 @@ plot(time, distance, 'color', 'c', 'linewidth', 2)
 hold on 
 yyaxis right;
 plot(time, volume, 'color', 'r', 'linewidth', 2)
-title('Change in terminus position (yellow) (m) and total ice volume (red) (m3)');
+title('Change in terminus position (blue) (m) and total ice volume (red) (m3)');
 xlabel('Simulation years');
 
 subplot(5,1,3);

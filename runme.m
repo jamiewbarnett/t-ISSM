@@ -1,4 +1,4 @@
-steps = [5];
+steps = [1:4];
 
 %To Do:
 %Racmo??
@@ -13,7 +13,7 @@ steps = [5];
 
 % Type the glacier you want to model below
 
-glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -47,13 +47,13 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
-    case{'Kangerlussuaq'}%Jamie %Not finshied
+    case{'Kangerlussuaq'}%Jamie 
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 8.5e6;
+        sigma_grounded = 8e6;
         sigma_floating = 300e3;
         seasonalmelt = 1;
         deep_melt = 4*365; %4 m/day
@@ -61,7 +61,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -50;
         icelandspc = 0;
-        nyrs_spinUp = 30;
+        nyrs_spinUp = 75;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -75,10 +75,11 @@ switch glacier
         deep_depth = -500;
         upper_melt = 0;
         upper_depth = -200;
-        nyrs_spinUp = 20;
+        nyrs_spinUp = 25;
         icelandspc = 0;
     case{'Jakobshavn'} %Felis
-        exp_file = 'Jakobshavn.exp';
+        exp_file = 'jakobshavn.exp';
+        flowline_file = 'jakobshavn_flowline.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
@@ -90,8 +91,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
-        nyrs_spinUp = 20;
-        %flowline_file = '';
+        nyrs_spinUp = 50;
     case{'Tracy+Heilprin'}%Felis
         exp_file = 'tracy_heilprin.exp';
         hmin = 500;
@@ -104,7 +104,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
-        nyrs_spinUp = 20;
+        nyrs_spinUp = 25;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
@@ -146,7 +146,7 @@ grounded_transient_sigmaMax =  [5e5; 5e5];
 grounded_transient_time = [2024 2028];% Times to apply the change in sigma max
 
 %%%% Model name %%%%
-ModelName = 'testing';
+ModelName = 'ice_go_byebye'; %set your transient run name here
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -565,9 +565,8 @@ if perform(org,'Transient')
     md.miscellaneous.name = [char(glacier) '_' char(ModelName)];
 
     %Intial Velocities
-    md.initialization.vx = md.results.TransientSolution(end).Vx;
-    md.initialization.vy = md.results.TransientSolution(end).Vy;
-    md.initialization.vel = md.results.TransientSolution(end).Vel;
+    md = transientrestart(md);
+
 
     %Dont use damage model
 	md.damage.D=zeros(md.mesh.numberofvertices,1);
