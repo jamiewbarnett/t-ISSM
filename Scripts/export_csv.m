@@ -32,14 +32,14 @@ end
 for i = 1:length(md.results.TransientSolution)
     ice_area = find(md.results.TransientSolution(i).MaskIceLevelset<0);
 
-    
+    floating = find(md.results.TransientSolution(i).MaskIceLevelset<0 & md.results.TransientSolution(i).MaskOceanLevelset<0);
     time = [time md.results.TransientSolution(i).time];
     vel_avg = [vel_avg mean(md.results.TransientSolution(i).Vel(ice_area))];
     vel_max = [vel_max max(md.results.TransientSolution(i).Vel)];
     icevolume = [icevolume md.results.TransientSolution(i).IceVolume];
     calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
     frontal_melt = [frontal_melt mean(md.results.TransientSolution(i).CalvingMeltingrate)];
-    shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate)];
+    shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate(floating))];
 
 
     [elementsL,xL,yL,zL,sL,hL]=SectionValues(md,md.results.TransientSolution(i).Surface,flowline,resolution);
