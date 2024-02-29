@@ -86,7 +86,7 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 - It is a good idea to do a bit of reading about your chosen glacier to understand which type of question might be relevant and/or interesting
 - You also need to consider how many simulations you need to run to answer your research question
 
-- Once you have decided on the question(s) to investigate, you need to change the relevant parameters in the header section of the `runme` script
+- Once you have decided on the question(s) to investigate, you need to change the relevant parameters in the header section of the `runme` script. Remember that it's important to **slowly** transition from the parameters used in the original model spin up
 
 - Make sure to keep good notation about which simulations you run 
 
