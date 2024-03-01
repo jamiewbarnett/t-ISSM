@@ -117,7 +117,7 @@ c.Ticks = [0, 0.5, 1];
 
 if b==1
     if md.results.TransientSolution(1).time > 2024
-        c.TickLabels = {'2024', string(((md.results.TransientSolution(ts).time)/2)+2024), string(md.results.TransientSolution(ts).time+2024)};
+        c.TickLabels = {'2024', string(md.results.TransientSolution(round(ts/2)).time), string(md.results.TransientSolution(ts).time)};
     else
         c.TickLabels = {'0', string(((md.results.TransientSolution(ts).time)/2)), string(md.results.TransientSolution(ts).time)};
     end

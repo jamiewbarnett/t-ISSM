@@ -91,7 +91,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
-        nyrs_spinUp = 50;
+        nyrs_spinUp = 25;
     case{'Tracy+Heilprin'}%Felis
         exp_file = 'tracy_heilprin.exp';
         hmin = 500;

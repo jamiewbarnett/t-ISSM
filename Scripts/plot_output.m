@@ -110,6 +110,7 @@ plot(time2+0.5,smb, 'color', "#D95319", 'linewidth' , 2);
 hold on
 plot(time2+0.5,discharge, 'color', "#77AC30", 'linewidth', 2);
 title('Annual SMB (orange) (Gt/yr) and Annual Discharge (green) (Gt/yr)');
+xlim([time(1) time(end)]);
 
 
 
