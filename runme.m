@@ -1,4 +1,4 @@
-steps = [1:4];
+steps = [1];
 
 %To Do:
 %Racmo??
@@ -13,7 +13,7 @@ steps = [1:4];
 
 % Type the glacier you want to model below
 
-glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -130,20 +130,21 @@ parameterize_file = './Greenland.par';
 % Parameters to play with for the transient simulations (step 5)
 
 %Transient
-final_year = 2030; % Start year is 2024 and max possible final year 2100
+final_year = 2050; % Start year is 2024 and max possible final year 2100
 
 %%%% SMB %%%%
 smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 
 %%%% Submarine Melt %%%% 
-melt_transient = [25]; %m/yr
-melt_transient_time = [2024];
+melt_transient = []; %m/yr
+melt_transient_time = [];
 
 %%%% Calving %%%%
-floating_transient_sigmaMax = [325e3 325e3 100e3];
-floating_transient_time =  [2024 2026 2028];% Times to apply the change in sigma max
-grounded_transient_sigmaMax =  [5e5; 5e5];
-grounded_transient_time = [2024 2028];% Times to apply the change in sigma max
+grounded_transient_sigmaMax =  [];
+grounded_transient_time = [];% Times to apply the change in sigma max
+floating_transient_sigmaMax = [];
+floating_transient_time =  [];% Times to apply the change in sigma max
+
 
 %%%% Model name %%%%
 ModelName = 'ice_go_byebye'; %set your transient run name here

@@ -1,0 +1,21 @@
+function mb = mass_balace(md)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+
+smb = [];
+discharge = [];
+mb = [];
+time = []
+
+
+for i = 1:12:length(md.results.TransientSolution)
+    if i ~= length(md.results.TransientSolution)
+        year_smb = md.results.TransientSolution(i:i+11).TotalSmb .* 1e-9 .* md.constants.yts % from kg s^-1 to Gt/yr
+        year_smb = sum(year_smb);
+
+        year_discharge = md.results.TransientSolution(i:i+11).GroundinglineMassFlux ./12;
+        year_discharge = sum(year_discharge)
+
+        smb = [smb year_smb];
+        discharge = 
+end
