@@ -101,7 +101,7 @@ There are several scripts included in t-ISSM, detailed below, that you can use t
 3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`. 
 
 
-You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file.
+You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file. **Hint:** use 'mask' md.results.TransientSolution(i).MaskIceLevelSet<0 to mask out non-ice areas
 
 A helpful resource for plotting tips is the ISSM website [here](https://issm.jpl.nasa.gov/documentation/plotmatlab/). 
 
