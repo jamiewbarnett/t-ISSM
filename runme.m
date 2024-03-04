@@ -1,15 +1,8 @@
-steps = [1];
+steps = [5];
 
-%To Do:
-%Racmo??
-%Zip of model data
-%Complete Ryder Transient
-%Seasonal Melt Spin up - done!
-%Seasonal Melt Transient
-%Add spc vel and thickness - twice in Stressbalance
+
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
-
 
 % Type the glacier you want to model below
 
@@ -119,8 +112,8 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 1;
-        nyrs_spinUp = 50;
-        %flowline_file = '';
+        nyrs_spinUp = 25;
+        flowline_file = '';
 end
 
 
@@ -136,14 +129,14 @@ final_year = 2050; % Start year is 2024 and max possible final year 2100
 smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
 
 %%%% Submarine Melt %%%% 
-melt_transient = []; %m/yr
-melt_transient_time = [];
+melt_transient = [25 50]; %m/yr
+melt_transient_time = [2024 2050];
 
 %%%% Calving %%%%
-grounded_transient_sigmaMax =  [];
-grounded_transient_time = [];% Times to apply the change in sigma max
-floating_transient_sigmaMax = [];
-floating_transient_time =  [];% Times to apply the change in sigma max
+grounded_transient_sigmaMax =  [5e5 5e5];
+grounded_transient_time = [2024 2050];% Times to apply the change in sigma max
+floating_transient_sigmaMax = [325e3 50e3];
+floating_transient_time =  [2024 2040];% Times to apply the change in sigma max
 
 
 %%%% Model name %%%%
@@ -567,7 +560,6 @@ if perform(org,'Transient')
 
     %Intial Velocities
     md = transientrestart(md);
-
 
     %Dont use damage model
 	md.damage.D=zeros(md.mesh.numberofvertices,1);
