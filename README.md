@@ -88,7 +88,9 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 - Once you have decided on the question(s) to investigate, you need to change the relevant parameters in the header section of the `runme` script. Remember that it's important to **slowly** transition from the parameters used in the original model spin up
 
-- Make sure to keep good notation about which simulations you run 
+- Make sure to keep good notation about which simulations you run
+
+N.B - You can run each transient simulation from the same spun-up state, so there is no need to run steps 1-4 more than once
 
 # Task 4: Analyse your results
 
@@ -96,12 +98,16 @@ Once you have run your simulations, it is time to analyse your results. Try to m
 
 There are several scripts included in t-ISSM, detailed below, that you can use to help you analyse your results:
 
-1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'EXPFILE')`, where the second argument is the path to the .exp file detailing your flowline.
+1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'flowline')`, where the second argument is the path to the .exp file detailing your flowline.
 2) `plot_output` - This creates a series of line plots showing how several variables evolve with time during your simulation. Usage is as follows: `export_csv(md,'flowline')`. 
-3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`. 
+3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`.
+4) `raster_export` - This exports results to a raster file, for visualisation in GIS software alongside e.g. satellite imagery. Usage is as follows: `raster_export(md, 'Vel', 100, 'my_results')`. In this excample, you would export the velocity field from the 100th output step to the file my_results.nc - which you will find saved in your 'Outputs' folder. 
 
 
-You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file.
+You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file. **Hint:** use `'mask' md.results.TransientSolution(i).MaskIceLevelSet<0` to mask out non-ice areas
+
+An example usage of `plotmodel` is shown below, which would create a plot showing the velocities of the glacier at the first timestep and at the final timestep. Both plots would be masked so that only glaciated areas are shown:
+`plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.TransientSolution(end).Vel, 'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask', md.results.TransientSolution(end).MaskIceLevelset<0)`
 
 A helpful resource for plotting tips is the ISSM website [here](https://issm.jpl.nasa.gov/documentation/plotmatlab/). 
 
