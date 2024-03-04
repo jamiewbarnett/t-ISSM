@@ -101,7 +101,7 @@ There are several scripts included in t-ISSM, detailed below, that you can use t
 1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'flowline')`, where the second argument is the path to the .exp file detailing your flowline.
 2) `plot_output` - This creates a series of line plots showing how several variables evolve with time during your simulation. Usage is as follows: `export_csv(md,'flowline')`. 
 3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`.
-4) `raster_export` - This exports results to a raster file, for visualisation alongside e.g. satellite imagery. Usage is as follows: `raster_export(md, 'Vel', 100, 'my_results')`. In this excample, you would export the velocity field from the 100th output step to the file my_results.nc - which you will find saved in your 'Outputs' folder. 
+4) `raster_export` - This exports results to a raster file, for visualisation in GIS software alongside e.g. satellite imagery. Usage is as follows: `raster_export(md, 'Vel', 100, 'my_results')`. In this excample, you would export the velocity field from the 100th output step to the file my_results.nc - which you will find saved in your 'Outputs' folder. 
 
 
 You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file. **Hint:** use `'mask' md.results.TransientSolution(i).MaskIceLevelSet<0` to mask out non-ice areas
