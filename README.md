@@ -105,6 +105,9 @@ There are several scripts included in t-ISSM, detailed below, that you can use t
 
 You can also make plots directly in matlab, for example via using the `plotmodel()` command. Examples of this command being used can be seen at the end of most Steps in the `runme` file. **Hint:** use `'mask' md.results.TransientSolution(i).MaskIceLevelSet<0` to mask out non-ice areas
 
+An example usage of `plotmodel` is shown below, which would create a plot showing the velocities of the glacier at the first timestep and at the final timestep. Both plots would be masked so that only glaciated areas are shown:
+`plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.TransientSolution(end).Vel, 'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask', md.results.TransientSolution(end).MaskIceLevelset<0)`
+
 A helpful resource for plotting tips is the ISSM website [here](https://issm.jpl.nasa.gov/documentation/plotmatlab/). 
 
 # Task 5: Make a presentation
