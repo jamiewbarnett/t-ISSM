@@ -88,7 +88,9 @@ Before doing this exercise, you will need to get the relevant ISSM binaries from
 
 - Once you have decided on the question(s) to investigate, you need to change the relevant parameters in the header section of the `runme` script. Remember that it's important to **slowly** transition from the parameters used in the original model spin up
 
-- Make sure to keep good notation about which simulations you run 
+- Make sure to keep good notation about which simulations you run
+
+N.B - You can run each transient simulation from the same spun-up state, so there is no need to run steps 1-4 more than once
 
 # Task 4: Analyse your results
 
