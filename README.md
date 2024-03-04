@@ -96,7 +96,7 @@ Once you have run your simulations, it is time to analyse your results. Try to m
 
 There are several scripts included in t-ISSM, detailed below, that you can use to help you analyse your results:
 
-1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'EXPFILE')`, where the second argument is the path to the .exp file detailing your flowline.
+1) `plot_outlines` - This creates a plot showing velocities and glacier geometry along a 2D flowline for every output step in your simulation. Usage is as follows: `plot_outlines(md,'flowline')`, where the second argument is the path to the .exp file detailing your flowline.
 2) `plot_output` - This creates a series of line plots showing how several variables evolve with time during your simulation. Usage is as follows: `export_csv(md,'flowline')`. 
 3) `export_csv` - This allows you to export results to a .csv file, for further analysis/ plotting in a program of your choice. Usage is as follows: `export_csv(md,'flowline')`. 
 
