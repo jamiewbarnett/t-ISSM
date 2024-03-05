@@ -1,4 +1,4 @@
-
+function output = plot_output(md,flowline)
 % Plotting code for ISSM simulations
 
 % Plotting line graphs of average velocity/ SMB etc
@@ -10,40 +10,109 @@ shelf_melt = [];
 volume = [];
 volume_float = [];
 gl_flux=[];
+distance = [];
+time=[];
+time2=[];
+discharge = [];
+smb=[];
+
 
 output_steps = length(md.results.TransientSolution)-1; % We want to start from 0
-front_area=find(md.mesh.y>(-1*10e5) & md.mask.ice_levelset<0);
+%front_area=find(md.mesh.y>(-1*10e5) & md.mask.ice_levelset<0);
+
+%Set reslution of interpolation for flowline
+if md.mesh.dimension == 2
+    resolution = 100;
+else
+    resolution = [100 100];
+end
+
+%Calculate the front of the glacier along the flowline
+[elementsL,xL,yL,zL,sL,hL]=SectionValues(md,md.results.TransientSolution(1).Surface,flowline,resolution);
+for i = [1:length(sL)]
+    if hL(i) > 1
+        distance0 = sL(i); %Intital start value
+        break
+    end
+end
+
+
 
 for i=1:(output_steps+1)
-    vel = [vel mean(md.results.TransientSolution(i).Vel(front_area))];
+    time = [time md.results.TransientSolution(i).time];
+    vel = [vel max(md.results.TransientSolution(i).Vel)];
     %smb = [smb md.results.TransientSolution(i).TotalSmb];
+    floating = find(md.results.TransientSolution(i).MaskIceLevelset<0 & md.results.TransientSolution(i).MaskOceanLevelset<0);
     calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
     frontal_melt = [frontal_melt mean(md.results.TransientSolution(i).CalvingMeltingrate)];
-    shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate)];
+    shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate(floating))];
     volume = [volume md.results.TransientSolution(i).IceVolume];
     %volume_float = [volume_float md.results.TransientSolution(i).FloatingArea];
     %gl_flux=[gl_flux md.results.TransientSolution(i).GroundinglineMassFlux];
+
+    [elementsL,xL,yL,zL,sL,hL]=SectionValues(md,md.results.TransientSolution(i).Surface,flowline,resolution);
+    for i = [1:length(sL)]
+        if hL(i) > 1
+            distance = [distance (distance0-sL(i))];
+            break
+        end
+    end
 end
 
+for i = 1:12:length(md.results.TransientSolution)
+    if i ~= length(md.results.TransientSolution)
+        year_smb = (md.results.TransientSolution(i:i+11).TotalSmb) ;
+        year_smb = sum(year_smb);
+        year_discharge = md.results.TransientSolution(i:i+11).GroundinglineMassFlux;
+        year_discharge = sum(year_discharge);
+        smb = [smb year_smb];
+        discharge = [discharge year_discharge];
+        time2 = [time2 md.results.TransientSolution(i).time];
+    end
+end
+
+if time(1)>2024
+    time(1) = 2024;
+    time2(1) = 2024;
+end
+
+
 figure()
-subplot(5,1,1);
-plot([0:output_steps], vel, 'color', 'b', 'linewidth', 2);
+ax1 = subplot(5,1,1);
+plot(time, vel, 'color', 'b', 'linewidth', 2);
+xlim([time(1) time(end)]);
 hold on;
-plot([0:output_steps], calving, 'color', 'g', 'linewidth', 2);
-title('Calving rate (green) and mean frontal velocity (blue) (m/yr)');
+yyaxis right
+plot(time, calving, 'color', 'g', 'linewidth', 2);
+title('Max velocity (blue) (m/yr) and Calving rate (green)');
 xlabel('Simulation years');
 
-subplot(5,1,2);
-plot([0:output_steps], volume, 'color', 'r', 'linewidth', 2)
-title('Total ice volume (m3)');
+ax2 = subplot(5,1,2);
+plot(time, distance, 'color', "#0072BD", 'linewidth', 2)
+xlim([time(1) time(end)]);
+hold on 
+yyaxis right;
+plot(time, volume, 'color', 'r', 'linewidth', 2)
+title('Change in terminus position (blue) (m) and total ice volume (red) (m3)');
 xlabel('Simulation years');
 
-subplot(5,1,3);
-plot([0:output_steps], frontal_melt, 'color', 'k', 'linewidth', 2);
+ax3 = subplot(5,1,3);
+plot(time, frontal_melt, 'color', 'k', 'linewidth', 2);
+xlim([time(1) time(end)]);
 hold on;
-plot([0:output_steps], shelf_melt, 'color', 'm', 'linewidth', 2); 
+plot(time, shelf_melt, 'color', 'm', 'linewidth', 2); 
 title('Mean melt at grounded fronts (black) and under floating ice (pink) (m/yr)');
 xlabel('Simulation years');
+
+
+ax4 = subplot(5,1,4);
+plot(time2+0.5,smb, 'color', "#D95319", 'linewidth' , 2);
+hold on
+plot(time2+0.5,discharge, 'color', "#77AC30", 'linewidth', 2);
+title('Annual SMB (orange) (Gt/yr) and Annual Discharge (green) (Gt/yr)');
+xlim([time(1) time(end)]);
+
+
 
 % Sea level rise contribution 
 rho_ice = 917; % (kg/m^3) density of ice
@@ -95,15 +164,15 @@ for i=1:(output_steps+1)
     end
 end
 
-subplot(5,1,4);
-plot([2:output_steps], SL_potential(2:output_steps), 'color', [0.3010 0.7450 0.9330], 'linewidth', 2); 
-title('Sea level potential locked up in glacier year-on-year (mm)');
+ax5 = subplot(5,1,5);
+plot(time, SL_potential, 'color', [0.3010 0.7450 0.9330], 'linewidth', 2); 
+xlim([time(1) time(end)]);
+title('Sea level potential locked up in glacier year-on-year (mm) and Cumulative Sea level contribution (mm)');
 xlabel('Simulation years');
-subplot(5,1,5);
-plot([2:output_steps], SL_contrib(2:output_steps), 'color', [0.9290 0.6940 0.1250], 'linewidth', 2); 
-title('Cumulative Sea level contribution (mm)');
-xlabel('Simulation years');
+yyaxis right;
+plot(time, SL_contrib, 'color', [0.9290 0.6940 0.1250], 'linewidth', 2); 
+xlim([time(1) time(end)]);
 
 
-
+linkaxes([ax1,ax2, ax3, ax4, ax5], 'x')
 

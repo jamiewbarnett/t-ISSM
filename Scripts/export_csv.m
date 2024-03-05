@@ -8,6 +8,12 @@ vel_max = [];
 distance = [];
 icevolume = [];
 time = [];
+calving = [];
+frontal_melt = [];
+shelf_melt = [];
+discharge = [];
+smb = [];
+
 
 if md.mesh.dimension == 2
     resolution = 100;
@@ -28,11 +34,16 @@ end
 for i = 1:length(md.results.TransientSolution)
     ice_area = find(md.results.TransientSolution(i).MaskIceLevelset<0);
 
-    
+    floating = find(md.results.TransientSolution(i).MaskIceLevelset<0 & md.results.TransientSolution(i).MaskOceanLevelset<0);
     time = [time md.results.TransientSolution(i).time];
     vel_avg = [vel_avg mean(md.results.TransientSolution(i).Vel(ice_area))];
     vel_max = [vel_max max(md.results.TransientSolution(i).Vel)];
     icevolume = [icevolume md.results.TransientSolution(i).IceVolume];
+    calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
+    frontal_melt = [frontal_melt mean(md.results.TransientSolution(i).CalvingMeltingrate)];
+    shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate(floating))];
+    discharge = [discharge md.results.TransientSolution(i).GroundinglineMassFlux];
+    smb = [smb md.results.TransientSolution(i).TotalSmb];
 
 
     [elementsL,xL,yL,zL,sL,hL]=SectionValues(md,md.results.TransientSolution(i).Surface,flowline,resolution);
@@ -97,26 +108,13 @@ for i=1:(length(md.results.TransientSolution))
 end
 
 
-%% make into structure... isnt matlab fun
-data = struct('time',[]);
-data = repmat(data,length(md.results.TransientSolution),1);
 
-time = num2cell(time);
-vel_max = num2cell(vel_max);
-vel_avg = num2cell(vel_avg);
-distance = num2cell(distance);
-icevolume = num2cell(icevolume);
-SL_contrib = num2cell(SL_contrib);
-SL_potential = num2cell(SL_potential);
 
-[data.time] = deal(time{:});
-[data.vel_max_myr] = deal(vel_max{:});
-[data.vel_avg_myr] = deal(vel_avg{:});
-[data.terminus_change_m] = deal(distance{:}); 
-[data.icevolume_m] = deal(icevolume{:});
-[data.sealevel_contribution_mm] = deal(SL_contrib{:});
-[data.sealevel_potential_mm] = deal(SL_potential{:});
+headings = ["Time" "Vel_max (m/yr)" "Vel_avg (m/yr)" "Terminus_position_change (m)" "Ice Volume (Gt)" "SL Contribution (mm)" "SL Potential (mm)" "Calving Rate" "Grounded Melt (m/yr)" "Floating Melt (m/yr)" "Dischagre (Gt/yr)" "SMB (Gt/yr"];
 
-%output structure to .csv
-writetable(struct2table(data), ['./Outputs/' char(md.miscellaneous.name) '.csv'])
+data = [headings ; [time' vel_max' vel_avg' distance' icevolume' SL_contrib' SL_potential' calving' frontal_melt' shelf_melt' discharge' smb']];
+
+writematrix(data, ['./Outputs/' char(md.miscellaneous.name) '.csv'])
+
+fprintf('File saved as ./Outputs/%s.csv\n',md.miscellaneous.name);
 

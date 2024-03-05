@@ -1,15 +1,6 @@
 steps = [5];
 
-%To Do:
-%Racmo??
-%Zip of model data
-%Complete Ryder Transient
-%Seasonal Melt Spin up - done!
-%Seasonal Melt Transient
-%Add spc vel and thickness - twice in Stressbalance
-
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
-
 
 % Type the glacier you want to model below
 
@@ -47,7 +38,7 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
-    case{'Kangerlussuaq'}%Jamie
+    case{'Kangerlussuaq'}%Jamie 
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
         hmin = 500;
@@ -78,7 +69,8 @@ switch glacier
         nyrs_spinUp = 50;
         icelandspc = 1;
     case{'Jakobshavn'} %Felis
-        exp_file = 'Jakobshavn.exp';
+        exp_file = 'jakobshavn.exp';
+        flowline_file = 'jakobshavn_flowline.exp';
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
@@ -90,8 +82,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
-        nyrs_spinUp = 20;
-        %flowline_file = '';
+        nyrs_spinUp = 25;
     case{'Tracy+Heilprin'}%Felis
         exp_file = 'tracy_heilprin.exp';
         hmin = 500;
@@ -104,7 +95,7 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 0;
-        nyrs_spinUp = 20;
+        nyrs_spinUp = 25;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
@@ -119,8 +110,8 @@ switch glacier
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 1;
-        nyrs_spinUp = 50;
-        %flowline_file = '';
+        nyrs_spinUp = 25;
+        flowline_file = '';
 end
 
 
@@ -145,7 +136,7 @@ floating_transient_sigmaMax = [350e3 350e3];
 floating_transient_time = [2024 2100];
 
 %%%% Model name %%%%
-ModelName = 'testing';
+ModelName = 'ice_go_byebye'; %set your transient run name here
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -564,9 +555,7 @@ if perform(org,'Transient')
     md.miscellaneous.name = [char(glacier) '_' char(ModelName)];
 
     %Intial Velocities
-    md.initialization.vx = md.results.TransientSolution(end).Vx;
-    md.initialization.vy = md.results.TransientSolution(end).Vy;
-    md.initialization.vel = md.results.TransientSolution(end).Vel;
+    md = transientrestart(md);
 
     %Dont use damage model
 	md.damage.D=zeros(md.mesh.numberofvertices,1);
@@ -726,12 +715,14 @@ if perform(org,'Transient')
     %Timestepping options
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = 0.05;
-    md.settings.output_frequency = 1/0.05; %yearly
+    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = 2; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
     md.timestepping.start_time = 2024;
     md.timestepping.final_time=final_year;
+
+
 
     %Output options
     md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
