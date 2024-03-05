@@ -1,4 +1,4 @@
-steps = [1:4];
+steps = [5];
 
 %To Do:
 %Racmo??
@@ -13,7 +13,7 @@ steps = [1:4];
 
 % Type the glacier you want to model below
 
-glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -68,15 +68,15 @@ switch glacier
         hmin = 750;
         hmax = 10000;
         fjordmesh = 750;
-        sigma_grounded = 1e6;
-        sigma_floating = 400e3;
+        sigma_grounded = 5e7;
+        sigma_floating = 350e3;
         seasonalmelt = 0;
-        deep_melt = 45;
+        deep_melt = 60;
         deep_depth = -500;
         upper_melt = 0;
         upper_depth = -200;
-        nyrs_spinUp = 20;
-        icelandspc = 0;
+        nyrs_spinUp = 50;
+        icelandspc = 1;
     case{'Jakobshavn'} %Felis
         exp_file = 'Jakobshavn.exp';
         hmin = 500;
@@ -132,18 +132,17 @@ parameterize_file = './Greenland.par';
 %Transient
 final_year = 2100; % Start year is 2024 and max possible final year 2100
 
-%%%% SMB %%%%
-smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
-
-%%%% Submarine Melt %%%% 
-melt_transient = [4*365 6*365]; %m/yr
-melt_transient_time = [2024 2050];
-
+smb_scenario = ['ssp245']; 
+ 
+%%%% Submarine Melt %%%%
+melt_transient = [60 80]; %m/yr
+melt_transient_time = [2024 2100];
+ 
 %%%% Calving %%%%
-floating_transient_sigmaMax = [325e3 275e3];
-floating_transient_time = [2024 2050]; % Times to apply the change in sigma max
-grounded_transient_sigmaMax = [5e5 3e5];
-grounded_transient_time =[2024 2050]; % Times to apply the change in sigma max
+grounded_transient_sigmaMax = [5e7 5e7];
+grounded_transient_time = [2024 2100];% Times to apply the change in sigma max
+floating_transient_sigmaMax = [350e3 350e3];
+floating_transient_time = [2024 2100];
 
 %%%% Model name %%%%
 ModelName = 'testing';
