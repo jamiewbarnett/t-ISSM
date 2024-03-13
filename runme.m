@@ -6,7 +6,7 @@ steps = [5];
 
 % Type the glacier you want to model below
 
-glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -25,6 +25,7 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
+        ts = 1/12;
     case{'Helheim'}%Jamie
         exp_file = './Exp/helheim.exp';
         flowline_file = './Exp/helheim_flowline.exp';
@@ -40,6 +41,7 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
+        ts = 1/24;
     case{'Kangerlussuaq'}%Jamie 
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
@@ -55,21 +57,23 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 75;
+        ts = 1/24;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
         hmin = 750;
         hmax = 10000;
         fjordmesh = 750;
-        sigma_grounded = 1e6;
-        sigma_floating = 400e3;
+        sigma_grounded = 5e7;
+        sigma_floating = 350e3;
         seasonalmelt = 0;
-        deep_melt = 45;
+        deep_melt = 60;
         deep_depth = -500;
         upper_melt = 0;
         upper_depth = -200;
-        nyrs_spinUp = 25;
-        icelandspc = 0;
+        nyrs_spinUp = 50;
+        icelandspc = 1;
+        ts = 1/12;
     case{'Jakobshavn'} %Felis
         exp_file = 'jakobshavn.exp';
         flowline_file = 'jakobshavn_flowline.exp';
@@ -85,6 +89,7 @@ switch glacier
         upper_depth = -100;
         icelandspc = 0;
         nyrs_spinUp = 25;
+        ts = 1/24;
     case{'Tracy+Heilprin'}%Felis
         exp_file = 'tracy_heilprin.exp';
         hmin = 500;
@@ -98,9 +103,11 @@ switch glacier
         upper_depth = -100;
         icelandspc = 0;
         nyrs_spinUp = 25;
+        ts = 1/12;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
+        flowline_file = 'Exp/ryder_flowline.exp';
         hmin = 750;
         hmax = 10000;
         fjordmesh = 750;
@@ -113,7 +120,7 @@ switch glacier
         upper_depth = -100;
         icelandspc = 1;
         nyrs_spinUp = 25;
-        flowline_file = '';
+        ts = 1/12;
 end
 
 
@@ -123,24 +130,24 @@ parameterize_file = './Greenland.par';
 % Parameters to play with for the transient simulations (step 5)
 
 %Transient
-final_year = 2050; % Start year is 2024 and max possible final year 2100
+final_year = 2100; % Start year is 2024 and max possible final year 2100
 
 %%%% SMB %%%%
-smb_scenario = ['ssp245']; %Choose between ssp245 or ssp585
+smb_scenario = ['ssp585']; %Choose between ssp245 or ssp585
 
 %%%% Submarine Melt %%%% 
-melt_transient = [25 50]; %m/yr
-melt_transient_time = [2024 2050];
+melt_transient = [60 60]; %m/yr
+melt_transient_time = [2024 2100];
 
 %%%% Calving %%%%
-grounded_transient_sigmaMax =  [5e5 5e5];
-grounded_transient_time = [2024 2050];% Times to apply the change in sigma max
-floating_transient_sigmaMax = [325e3 50e3];
-floating_transient_time =  [2024 2040];% Times to apply the change in sigma max
+grounded_transient_sigmaMax =  [5e7 5e7];
+grounded_transient_time = [2024 2100];% Times to apply the change in sigma max
+floating_transient_sigmaMax = [350e3 250e3];
+floating_transient_time =  [2024 2100];% Times to apply the change in sigma max
 
 
 %%%% Model name %%%%
-ModelName = 'ice_go_byebye'; %set your transient run name here
+ModelName = 'ssp585_meltnochange_calving350to250'; %set your transient run name here
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -505,8 +512,8 @@ if perform(org,'Spin_Up')
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
-    md.settings.output_frequency = 2; %montlhy
+    md.timestepping.time_step = ts; %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = (1/12)/ts; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
@@ -719,8 +726,8 @@ if perform(org,'Transient')
     %Timestepping options
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
-    md.settings.output_frequency = 2; %montlhy
+    md.timestepping.time_step = ts; %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = (1/12)/ts; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
     md.timestepping.start_time = 2024;
