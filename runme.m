@@ -1,7 +1,5 @@
 steps = [5];
 
-
-
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
@@ -74,6 +72,7 @@ switch glacier
         nyrs_spinUp = 50;
         icelandspc = 1;
         ts = 1/12;
+
     case{'Jakobshavn'} %Felis
         exp_file = 'jakobshavn.exp';
         flowline_file = 'jakobshavn_flowline.exp';
@@ -132,22 +131,27 @@ parameterize_file = './Greenland.par';
 %Transient
 final_year = 2100; % Start year is 2024 and max possible final year 2100
 
+
 %%%% SMB %%%%
-smb_scenario = ['ssp585']; %Choose between ssp245 or ssp585
-
-%%%% Submarine Melt %%%% 
-melt_transient = [60 60]; %m/yr
-melt_transient_time = [2024 2100];
-
+smb_scenario = ['ssp245']; 
+ 
+%%%% Submarine Melt %%%%
+melt_transient = []; %m/yr
+melt_transient_time = [];
+ 
 %%%% Calving %%%%
-grounded_transient_sigmaMax =  [5e7 5e7];
-grounded_transient_time = [2024 2100];% Times to apply the change in sigma max
-floating_transient_sigmaMax = [350e3 250e3];
-floating_transient_time =  [2024 2100];% Times to apply the change in sigma max
+grounded_transient_sigmaMax =  [];
+grounded_transient_time = [];% Times to apply the change in sigma max
+floating_transient_sigmaMax = [];
+floating_transient_time =  [];% Times to apply the change in sigma max
 
+grounded_transient_sigmaMax = [];
+grounded_transient_time = [];% Times to apply the change in sigma max
+floating_transient_sigmaMax = [];
+floating_transient_time = [];
 
 %%%% Model name %%%%
-ModelName = 'ssp585_meltnochange_calving350to250'; %set your transient run name here
+ModelName = 'ice_go_byebye'; %set your transient run name here
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
