@@ -1,5 +1,13 @@
 steps = [1 2 3];
 
+% Todo:
+% Spun up .mat files
+% New shortened runme
+% Questions/specific projects
+% Check timesteps
+% Processing Scripts into lecture
+% Check with old binaries
+
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
