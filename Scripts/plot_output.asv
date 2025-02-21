@@ -23,9 +23,9 @@ output_steps = length(md.results.TransientSolution)-1; % We want to start from 0
 
 %Set reslution of interpolation for flowline
 if md.mesh.dimension == 2
-    resolution = 1000;
+    resolution = 100;
 else
-    resolution = [1000 1000];
+    resolution = [100 100];
 end
 
 %Calculate the front of the glacier along the flowline
@@ -163,6 +163,8 @@ for i=1:(output_steps+1)
 	    SL_contrib=[SL_contrib ((SL_contrib(i-1)+SL_potential(i-1)-SL_potential(i))+sl_density)];
 	    %SL_contrib=[SL_contrib (SL_contrib(i-1)+SL_potential(i-1)-SL_potential(i))];
     end
+
+
 end
 
 ax5 = subplot(5,1,5);

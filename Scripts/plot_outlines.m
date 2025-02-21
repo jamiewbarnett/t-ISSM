@@ -35,7 +35,7 @@ maxsurface = 0;
 %starting slice
 b = 1;
 %Plot every x timestep
-j = 12; 
+j = 1; 
 
 
 figure();
@@ -128,11 +128,13 @@ end
 c.Label.String = 'Simulation Years'; c.Label.FontSize = 16; c.FontSize = 14;
 
 
+
 %Get bedrockdata
 [elemets,x,y,z,s,bed] = SectionValues(md,md.geometry.bed,flowline,resolution);
+minbed = floor(min(bed)/500)*500;
 plot(s,bed,'black', LineWidth=1)
 fill_x = [s; flip(s)];
-fill_y = [bed; (min(bed))*ones(length(bed),1)];
+fill_y = [bed; (minbed)*ones(length(bed),1)];
 fill(fill_x,fill_y, [100 58 38]./255, 'FaceAlpha', 0.5)
 
 set ( gca, 'xdir', 'reverse' )
@@ -140,11 +142,12 @@ set ( gca, 'xdir', 'reverse' )
 %set(gca, 'XTickLabel', str([0:2:20]));
 
 maxsurface =ceil(maxsurface/500)*500;
-ylim([min(bed) maxsurface])
+ylim([minbed maxsurface])
 
 
 %Make top plot for velocity profile
 subplot(5,5,[1:5 6:10])
+maxvel = 0;
 
 fprintf('-- Interpolation velocities \n')
 
@@ -155,24 +158,31 @@ for i = [b:j:ts]
 
     %load in velocity data
     [elemets,x,y,z,s,vel] = SectionValues(md,md.results.TransientSolution(i).Vel,flowline,resolution);
-    
-    maxvel = 0;
+      
     %Assumining the max velocity is the front of the glacier, remove any
     %slow moving ice
     for i = [1:length(vel)]
-        if vel(i) == 0 ||  (vel(i)<(vel(i+1)*0.97))    %vel(i) < max(vel)
+        if vel(i) == 0 ||  (vel(i)<(vel(i+3)*0.95))    %vel(i) < max(vel)
             vel(i) = NaN;
         else
-            maxvel = max(maxvel,max(vel));
             break
         end
     end
     plot(s,vel)
     hold on
 
+    maxvel = max(maxvel,max(vel));
+
 end
 
-maxvel = ceil(maxvel/1000)*1000;
+%Adapt the scale depending on if the glacier is fast (>3000) or slow
+%(<3000)
+if maxvel > 3000
+    maxvel = ceil(maxvel/1000)*1000;
+else
+    maxvel = ceil(maxvel/100)*100;
+end
+
 
 ylim([0 maxvel])
 xlim([0 s(end)]);
