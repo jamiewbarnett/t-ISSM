@@ -39,7 +39,9 @@ switch glacier
         hmax = 10000;
         fjordmesh = 750;
         sigma_floating = 200e3;
-        eigen = 1e8;
+        eigen = 60e8;
+        waterH = 0;
+        minT = 100;
         deep_melt = 55;
         deep_depth = -700;
         upper_melt = 0;
@@ -61,7 +63,7 @@ final_year = 2100; % Start year is 2024 and max possible final year 2100
 smb_scenario = ['ssp245']; 
 
 %%%% Calving %%%%%
-calving_law = ['EIGEN'];
+calving_law = ['MT'];
  
 %%%% Submarine Melt %%%%
 melt_transient = []; %m/yr
@@ -694,6 +696,13 @@ if perform(org,'Spin_Up_Calving')
         case{'EIGEN'}
             md.calving=calvinglevermann();
             md.calving.coeff = eigen*md.constants.yts *ones(md.mesh.numberofvertices,1);
+        case{'CD'}
+            md.calving=calvingcrevassedepth();
+            md.calving.crevasse_opening_stress = 0;
+            md.calving.water_height = waterH*ones(md.mesh.numberofvertices,1);
+        case{'MT'}
+            md.calving=calvingminthickness();
+            md.calving.min_thickness = minT;
     end
 
     %Set frontal melt to 0
