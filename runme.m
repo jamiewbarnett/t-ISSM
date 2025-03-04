@@ -139,7 +139,6 @@ parameterize_file = './Greenland.par';
 %Transient
 final_year = 2100; % Start year is 2024 and max possible final year 2100
 
-
 %%%% SMB %%%%
 smb_scenario = ['ssp245']; 
  

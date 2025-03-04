@@ -12,7 +12,7 @@ steps = [6];
 
 % Type the glacier you want to model below
 
-glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = '79'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -22,16 +22,17 @@ switch glacier
         hmin = 750;
         hmax = 20000;
         fjordmesh = 1000;
-        sigma_grounded = 1e6;
-        sigma_floating = 400e3;
         seasonalmelt = 0;
-        deep_melt = 40;
+        deep_melt = 45;
         deep_depth = -600;
         upper_melt = 0;
-        upper_depth = -50;
+        upper_depth = -100;
+        sigma_floating = 200e3;
+        eigen = 2e8;
+        waterH = 0;
+        minT = 90;
         icelandspc = 0;
-        nyrs_spinUp = 50;
-        ts = 1/12;
+
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -46,7 +47,7 @@ switch glacier
         deep_depth = -700;
         upper_melt = 0;
         upper_depth = -75;
-        icelandspc = 1;
+        icelandspc = 0;
 end
 
 
@@ -513,11 +514,10 @@ if perform(org,'Stressbalance')
     md.stressbalance.spcvx(pos)= md.inversion.vx_obs(pos);
     md.stressbalance.spcvy(pos)= md.inversion.vy_obs(pos);
 
-
     %REMOVE dirichlet conditions on non-ice vertices
-    pos = find(M==1 & md.mesh.vertexonboundary==0);
-    md.stressbalance.spcvx(pos)=NaN;
-    md.stressbalance.spcvy(pos)=NaN;
+%     pos = find(M==1 & md.mesh.vertexonboundary==0);
+%     md.stressbalance.spcvx(pos)=NaN;
+%     md.stressbalance.spcvy(pos)=NaN;
 
 	%Test plot
 	plotmodel(md,...
@@ -714,7 +714,7 @@ if perform(org,'Spin_Up_Calving')
     md.timestepping.time_step_max = (1/365)*7.2; 
     md.settings.output_frequency = 25;
     md.timestepping.start_time = 0;
-    md.timestepping.final_time = 10;
+    md.timestepping.final_time = 25;
 
     %Output options
     md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...
