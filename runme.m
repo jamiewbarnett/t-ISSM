@@ -1,10 +1,10 @@
-steps = [5];
+steps = [4];
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
 
-glacier = 'Petermann'; %'79', 'Helheim', 'Kangerlussuaq' etc...
+glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
 % Find correct exp and flowline files
 switch glacier
@@ -29,7 +29,7 @@ switch glacier
         hmin = 500;
         hmax = 10000;
         fjordmesh = 500;
-        sigma_grounded = 5e7;
+        sigma_grounded = 1e8;
         sigma_floating = 300e3;
         seasonalmelt = 1;
         deep_melt = 1*365; %1m/day
@@ -41,10 +41,10 @@ switch glacier
     case{'Kangerlussuaq'}%Jamie 
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
-        hmin = 500;
+        hmin = 750;
         hmax = 10000;
-        fjordmesh = 500;
-        sigma_grounded = 8e6;
+        fjordmesh = 750;
+        sigma_grounded = 1e7; % Check this....
         sigma_floating = 300e3;
         seasonalmelt = 1;
         deep_melt = 4*365; %4 m/day
@@ -71,9 +71,9 @@ switch glacier
     case{'Jakobshavn'} %Felis
         exp_file = 'jakobshavn.exp';
         flowline_file = 'jakobshavn_flowline.exp';
-        hmin = 500;
+        hmin = 750;
         hmax = 10000;
-        fjordmesh = 500;
+        fjordmesh = 750;
         sigma_grounded = 1.25e6;
         sigma_floating = 300e3;
         seasonalmelt = 1;
@@ -103,14 +103,14 @@ switch glacier
         hmax = 10000;
         fjordmesh = 750;
         sigma_grounded = 5e5;
-        sigma_floating = 325e3;
+        sigma_floating = 200e3;
         seasonalmelt = 0;
-        deep_melt = 25;
+        deep_melt = 0;
         deep_depth = -300;
         upper_melt = 0;
         upper_depth = -100;
         icelandspc = 1;
-        nyrs_spinUp = 25;
+        nyrs_spinUp = 100;
         flowline_file = '';
 end
 
@@ -123,20 +123,20 @@ parameterize_file = './Greenland.par';
 %Transient
 final_year = 2100; % Start year is 2024 and max possible final year 2100
 
-smb_scenario = ['ssp245']; 
+smb_scenario = ['ssp585']; 
  
 %%%% Submarine Melt %%%%
-melt_transient = [60 80]; %m/yr
+melt_transient = [60 60]; %m/yr
 melt_transient_time = [2024 2100];
  
 %%%% Calving %%%%
 grounded_transient_sigmaMax = [5e7 5e7];
 grounded_transient_time = [2024 2100];% Times to apply the change in sigma max
-floating_transient_sigmaMax = [350e3 350e3];
+floating_transient_sigmaMax = [350e3 450e3];
 floating_transient_time = [2024 2100];
 
 %%%% Model name %%%%
-ModelName = 'ice_go_byebye'; %set your transient run name here
+ModelName = 'ssp585_melt60_calving350to450'; %set your transient run name here
 org = organizer('repository','Outputs','prefix',[glacier ModelName],'steps',steps);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -371,6 +371,11 @@ if perform(org,'Spin_Up')
 
     load(['Outputs/' char(glacier) '_Stressbalance'])
 
+    if glacier=='Ryder'
+        pos=md.mask.ocean_levelset<0;
+        md.mask.ice_levelset(pos)=1;
+    end
+
     %Intial Velocities
     md.initialization.vx = md.results.StressbalanceSolution.Vx;
     md.initialization.vy = md.results.StressbalanceSolution.Vy;
@@ -393,7 +398,11 @@ if perform(org,'Spin_Up')
     smbMAR = [];
 
     for yy=1:(40*12) % Monthly data
-        smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
+        if glacier=='Ryder'
+            smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-ssp585-combined.nc');
+        else
+            smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
+        end
         smbMAR = [smbMAR smboutput];
         %progress = sprintf('Read %d timesteps out of %d',yy, nyrs_smb*12);
         %disp(progress)
@@ -491,6 +500,8 @@ if perform(org,'Spin_Up')
 	    disp(['Calving sigma_max floatingice set to ' num2str(md.calving.stress_threshold_floatingice./1000)  ' kPa'])
     
 	    md.calving.min_thickness=50; %m, default NaN
+
+        if glacier == 'Ryder'; melt_front=25*ones(md.mesh.numberofvertices,1);md.transient.isgroundingline=0; end
     
 	    %Define calving rate and melt rate (only effective if ismovingfront==1)
 	    md.frontalforcings.meltingrate=melt_front; %only effective if front is grounded
