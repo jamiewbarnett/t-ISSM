@@ -21,7 +21,7 @@ run_name = 'ryder_SMB1_melt25_calving5e5_200e3';
 
 %% Transient run - do not edit this section
 
-load('./Outputs/Ryder_Spinup.mat');
+load('./Model_Data/Ryder_Spinup.mat');
 md = transientrestart(md);
 
 
@@ -178,5 +178,11 @@ plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.Tr
     'caxis#3-4', [-250 250], 'ncols', 4,'caxis#1-2', [0 max(md.results.TransientSolution(end).Vel)], ...
     'title','Initial Velocity (m/yr)' , 'title','Final Velocity (m/yr)' , 'title', 'End velocity - Starting velocity (m/yr)', ...
     'title', 'End thickness - Starting thickness (m)')
+
+
+
+
+
+
 
 

@@ -1,8 +1,18 @@
+
 steps = [4];
+
+% Todo:
+% Spun up .mat files
+% New shortened runme
+% Questions/specific projects
+% Check timesteps
+% Processing Scripts into lecture
+% Check with old binaries
 
 %% %%%%%%%%%%%%% Glacier Selection %%%%%%%%%%%%%%
 
 % Type the glacier you want to model below
+
 
 glacier = 'Ryder'; %'79', 'Helheim', 'Kangerlussuaq' etc...
 
@@ -11,7 +21,7 @@ switch glacier
     case{'79'} %Jamie
         exp_file = './Exp/79.exp';
         flowline_file = './Exp/79_flowline.exp';
-        hmin = 1000;
+        hmin = 500;
         hmax = 20000;
         fjordmesh = 1500;
         sigma_grounded = 1e6;
@@ -23,6 +33,7 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
+        ts = 1/12;
     case{'Helheim'}%Jamie
         exp_file = './Exp/helheim.exp';
         flowline_file = './Exp/helheim_flowline.exp';
@@ -38,6 +49,7 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 50;
+        ts = 1/24;
     case{'Kangerlussuaq'}%Jamie 
         exp_file = './Exp/kangerlussuaq.exp';
         flowline_file = './Exp/kanger_flowline.exp';
@@ -53,6 +65,7 @@ switch glacier
         upper_depth = -50;
         icelandspc = 0;
         nyrs_spinUp = 75;
+        ts = 1/24;
     case{'Petermann'}%Felis
         exp_file = './Exp/petermann.exp';
         flowline_file = './Exp/petermann_flowline.exp';
@@ -68,6 +81,8 @@ switch glacier
         upper_depth = -200;
         nyrs_spinUp = 50;
         icelandspc = 1;
+        ts = 1/12;
+
     case{'Jakobshavn'} %Felis
         exp_file = 'jakobshavn.exp';
         flowline_file = 'jakobshavn_flowline.exp';
@@ -83,6 +98,7 @@ switch glacier
         upper_depth = -100;
         icelandspc = 0;
         nyrs_spinUp = 25;
+        ts = 1/24;
     case{'Tracy+Heilprin'}%Felis
         exp_file = 'tracy_heilprin.exp';
         hmin = 500;
@@ -96,9 +112,11 @@ switch glacier
         upper_depth = -100;
         icelandspc = 0;
         nyrs_spinUp = 25;
+        ts = 1/12;
         %flowline_file = '';
     case{'Ryder'}
         exp_file = './Exp/ryder.exp';
+        flowline_file = 'Exp/ryder_flowline.exp';
         hmin = 750;
         hmax = 10000;
         fjordmesh = 750;
@@ -134,6 +152,7 @@ grounded_transient_sigmaMax = [5e7 5e7];
 grounded_transient_time = [2024 2100];% Times to apply the change in sigma max
 floating_transient_sigmaMax = [350e3 450e3];
 floating_transient_time = [2024 2100];
+
 
 %%%% Model name %%%%
 ModelName = 'ssp585_melt60_calving350to450'; %set your transient run name here
@@ -512,8 +531,8 @@ if perform(org,'Spin_Up')
 
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
-    md.settings.output_frequency = 2; %montlhy
+    md.timestepping.time_step = ts; %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = (1/12)/ts; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
 
@@ -726,8 +745,8 @@ if perform(org,'Transient')
     %Timestepping options
     md.timestepping.cycle_forcing = 1;
     md.timestepping = timestepping();
-    md.timestepping.time_step = (1/24); %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
-    md.settings.output_frequency = 2; %montlhy
+    md.timestepping.time_step = ts; %Dont increase timestep past 0.05 or else Helheim/Kanger explode!
+    md.settings.output_frequency = (1/12)/ts; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
     disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
     md.timestepping.start_time = 2024;
