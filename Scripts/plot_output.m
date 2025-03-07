@@ -60,7 +60,7 @@ for i=1:(output_steps+1)
     end
 end
 
-for i = 1:12:length(md.results.TransientSolution)
+for i = 1:12:length(md.results.TransientSolution)-3
     if i ~= length(md.results.TransientSolution)
         year_smb = (md.results.TransientSolution(i:i+11).TotalSmb) ;
         year_smb = sum(year_smb);
