@@ -39,7 +39,7 @@ for i = 1:length(md.results.TransientSolution)
     vel_avg = [vel_avg mean(md.results.TransientSolution(i).Vel(ice_area))];
     vel_max = [vel_max max(md.results.TransientSolution(i).Vel)];
     icevolume = [icevolume md.results.TransientSolution(i).IceVolume];
-    calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
+    %calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
     frontal_melt = [frontal_melt mean(md.results.TransientSolution(i).CalvingMeltingrate)];
     shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate(floating))];
     discharge = [discharge md.results.TransientSolution(i).GroundinglineMassFlux];
@@ -110,9 +110,9 @@ end
 
 
 
-headings = ["Time" "Vel_max (m/yr)" "Vel_avg (m/yr)" "Terminus_position_change (m)" "Ice Volume (Gt)" "SL Contribution (mm)" "SL Potential (mm)" "Calving Rate" "Grounded Melt (m/yr)" "Floating Melt (m/yr)" "Dischagre (Gt/yr)" "SMB (Gt/yr"];
+headings = ["Time" "Vel_max (m/yr)" "Vel_avg (m/yr)" "Terminus_position_change (m)" "Ice Volume (Gt)" "SL Contribution (mm)" "SL Potential (mm)" "Grounded Melt (m/yr)" "Floating Melt (m/yr)" "Dischagre (Gt/yr)" "SMB (Gt/yr"];
 
-data = [headings ; [time' vel_max' vel_avg' distance' icevolume' SL_contrib' SL_potential' calving' frontal_melt' shelf_melt' discharge' smb']];
+data = [headings ; [time' vel_max' vel_avg' distance' icevolume' SL_contrib' SL_potential' frontal_melt' shelf_melt' discharge' smb']];
 
 writematrix(data, ['./Outputs/' char(md.miscellaneous.name) '.csv'])
 

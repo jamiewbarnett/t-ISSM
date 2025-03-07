@@ -44,7 +44,7 @@ for i=1:(output_steps+1)
     vel = [vel max(md.results.TransientSolution(i).Vel)];
     %smb = [smb md.results.TransientSolution(i).TotalSmb];
     floating = find(md.results.TransientSolution(i).MaskIceLevelset<0 & md.results.TransientSolution(i).MaskOceanLevelset<0);
-    calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
+    %calving = [calving mean(md.results.TransientSolution(i).CalvingCalvingrate)];
     frontal_melt = [frontal_melt mean(md.results.TransientSolution(i).CalvingMeltingrate)];
     shelf_melt = [shelf_melt mean(md.results.TransientSolution(i).BasalforcingsFloatingiceMeltingRate(floating))];
     volume = [volume md.results.TransientSolution(i).IceVolume];
@@ -72,10 +72,10 @@ for i = 1:12:length(md.results.TransientSolution)
     end
 end
 
-if time(1)>2024
-    time(1) = 2024;
-    time2(1) = 2024;
-end
+% if time(1)>2024
+%     time(1) = 2024;
+%     time2(1) = 2024;
+% end
 
 
 figure()
@@ -84,8 +84,8 @@ plot(time, vel, 'color', 'b', 'linewidth', 2);
 xlim([time(1) time(end)]);
 hold on;
 yyaxis right
-plot(time, calving, 'color', 'g', 'linewidth', 2);
-title('Max velocity (blue) (m/yr) and Calving rate (green)');
+%plot(time, calving, 'color', 'g', 'linewidth', 2);
+title('Max velocity (blue) (m/yr)'); %and Calving rate (green)
 xlabel('Simulation years');
 
 ax2 = subplot(5,1,2);
@@ -107,9 +107,9 @@ xlabel('Simulation years');
 
 
 ax4 = subplot(5,1,4);
-plot(time2+0.5,smb, 'color', "#D95319", 'linewidth' , 2);
+plot(time2+1,smb, 'color', "#D95319", 'linewidth' , 2);
 hold on
-plot(time2+0.5,discharge, 'color', "#77AC30", 'linewidth', 2);
+plot(time2+1,discharge, 'color', "#77AC30", 'linewidth', 2);
 title('Annual SMB (orange) (Gt/yr) and Annual Discharge (green) (Gt/yr)');
 xlim([time(1) time(end)]);
 

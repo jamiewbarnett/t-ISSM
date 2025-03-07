@@ -1,4 +1,4 @@
-function output = plot_outlines(md,flowline)
+function output = plot_outlines(md,flowline,observations)
 %PLOT_OUTLINES - used to plot the shape/velocities of a glacier along a
 %defined flow line
 %
@@ -20,7 +20,7 @@ else
 end
 
 if md.mesh.dimension()==2
-    resolution = 100;
+    resolution = 500;
 else
     resolution = [1000 1000];
 end
@@ -30,6 +30,8 @@ res = (md.results.TransientSolution(end).time / length(md.results.TransientSolut
 %Number of timesteps
 ts = length(md.results.TransientSolution);
 
+ice_array = [];
+
 maxsurface = 0;
 
 %starting slice
@@ -37,14 +39,13 @@ b = 1;
 %Plot every x timestep
 j = 1; 
 
-
 figure();
 %Make bottom plot for 2d view
 subplot(5,5,[11:15 20:25])
 
 fprintf('-- Interpolation glacier surface \n')
 
-%ts = 60;
+%ts = 168;
 
 %Loop through every 12th timestep
 for i = [b:j:ts]
@@ -55,41 +56,23 @@ for i = [b:j:ts]
      %resolution
      [elements,x,y,z,s,surf]=SectionValues(md,md.results.TransientSolution(i).Surface,flowline,resolution);
      [elements,x,y,z,s,base]=SectionValues(md,md.results.TransientSolution(i).Base,flowline,resolution);
+     [elements,x,y,z,s,ice]=SectionValues(md,md.results.TransientSolution(i).MaskIceLevelset,flowline,resolution);
+
+     ice_array = [ice_array ice]; %save positions of ice
+     pos = find(ice<0); %find where there is ice
      
-     %Loop through the surface data and remove the very thin ice infront of
-     %the glacier
-    for m = [1:length(surf)]
-        if surf(m)<1
-            surf(m) = NaN;
-        else
-            surf(m)=0;
-            limit = m;
-            break
-        end
-    end
 
     %flip the x and y of the surface values
-    y_line = flip(surf(limit:end));
-    x_line = flip(s(limit:end));
-
-    %Loop through the base data to remove thin ice
-    for m = [1:length(base)]
-        if base(m)>(-2);
-            base(m) = NaN;
-        else
-            base(m)=0;
-            limit = m;
-            break
-        end
-    end
+    y_line = flip(surf(pos));
+    x_line = flip(s(pos));
 
     %Concatenate the surface and base data so they appear joined up in the
     %final plot
-    y_line = [y_line; base(limit:end)];
-    x_line = [x_line; s(limit:end)];
+    y_line = [y_line; base(pos)];
+    x_line = [x_line; s(pos)];
     
     if i == 1 || i == ts
-        plot(x_line,y_line,'LineWidth',3,'DisplayName',string(i))
+        plot(x_line,y_line,'LineWidth',2,'DisplayName',string(i))
     else
         plot(x_line,y_line,'DisplayName',string(i))
     end
@@ -114,16 +97,7 @@ c.Ticks = [0, 0.5, 1];
 
 
 
-
-if b==1
-    if md.results.TransientSolution(1).time > 2024
-        c.TickLabels = {'2024', string(md.results.TransientSolution(round(ts/2)).time), string(md.results.TransientSolution(ts).time)};
-    else
-        c.TickLabels = {'0', string(((md.results.TransientSolution(ts).time)/2)), string(md.results.TransientSolution(ts).time)};
-    end
-else
-    c.TickLabels = {string(md.results.TransientSolution(b).time), string((md.results.TransientSolution(b).time+md.results.TransientSolution(ts).time)/2), string(md.results.TransientSolution(ts).time)};
-end
+c.TickLabels = {string(md.results.TransientSolution(b).time), string((md.results.TransientSolution(b).time+md.results.TransientSolution(ts).time)/2), string(md.results.TransientSolution(ts).time)};
 
 c.Label.String = 'Simulation Years'; c.Label.FontSize = 16; c.FontSize = 14;
 
@@ -150,30 +124,26 @@ subplot(5,5,[1:5 6:10])
 maxvel = 0;
 
 fprintf('-- Interpolation velocities \n')
-
+count = 1;
 %Loop through every timestep
 for i = [b:j:ts]
-
     fprintf('   -- Timestep %i of %i... \n',i,ts);
 
     %load in velocity data
     [elemets,x,y,z,s,vel] = SectionValues(md,md.results.TransientSolution(i).Vel,flowline,resolution);
       
-    %Assumining the max velocity is the front of the glacier, remove any
-    %slow moving ice
-    for i = [1:length(vel)]
-        if vel(i) == 0 ||  (vel(i)<(vel(i+3)*0.95))    %vel(i) < max(vel)
-            vel(i) = NaN;
-        else
-            break
-        end
-    end
-    plot(s,vel)
+    pos = find(ice_array(:,count)<0);
+    
+    plot(s(pos),vel(pos))
     hold on
 
     maxvel = max(maxvel,max(vel));
-
+    
+    count = count+1;
 end
+
+
+
 
 %Adapt the scale depending on if the glacier is fast (>3000) or slow
 %(<3000)
@@ -190,7 +160,6 @@ xticklabels(xticks/1000);
 ax = gca; ax.FontSize = 14; 
 ylabel('Velocity (m/yr)','FontSize',14)
 set(gca,'colororder',cmap);
-
 
 set ( gca, 'xdir', 'reverse' )
 %xt = get(gca, 'XTick');

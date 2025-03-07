@@ -1,8 +1,8 @@
 function raster_export(md, variable, timesteps, savefile)
 %%%%%% %Interpolate ISSM output from model mesh to netCDF grid
 
-%% Example usage for creating file 'test_export.nc' including surface results for 5 timesteps:
-%% raster_export(md, 1, 'Surface', [1:5], 7, 'ssp585_surface_2100')
+%% Example usage for creating file 'test_export.nc' including surface results for the years 2025, 2050, 2075 and 2100.
+%% raster_export(md, 1, 'Surface', [2025:25:2100], 7, 'ssp585_surface_2100')
 
 % Layer input variable is unused if the model is 2D
 
@@ -15,6 +15,10 @@ Y=md.mesh.y;
 message = strcat('   -- raster Export: Model is 2D, layer argument being ignored');
 if isverbose; disp(message); end
 
+time = [];
+for i = 1:length(md.results.TransientSolution)
+    time = [time md.results.TransientSolution(i).time];
+end
 
 
 % Create grid
@@ -28,7 +32,8 @@ message = strcat('   -- raster Export:',{' '}, 'Reading timestep',{' '},string(t
 if isverbose, disp(message); end
 data = [];
 for i=1:length(timesteps)
-    name = char(strcat(string(data_loc), '(',string(timesteps(i)), ')', '.', variable));
+   [val,idx]=min(abs(time-timesteps(i))); % Closted timestep to the prescribed dates 
+    name = char(strcat(string(data_loc), '(',string(idx), ')', '.', variable));
     var = eval(name);
     tmp = InterpFromMeshToGrid(index,X,Y,var,x_g(:),y_g(:),NaN);
     tmp=tmp';
@@ -70,22 +75,4 @@ netcdf.close(ncid);
 % disp('   -- raster Export: Creating GeoTiff using gdal')
 % system(sprintf('gdal_translate -a_srs EPSG:3413 NETCDF:%s.nc:%s %s.tif', savefile, variable, savefile));
 % disp('   -- raster Export: All done')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
