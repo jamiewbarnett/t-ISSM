@@ -6,20 +6,24 @@
 % Run some simulations where you just change one parameter at a time (e.g.
 % keep the default melt and calving but change SMB), and some simulations
 % where you change several parameters simultaneously.
-%%
+
+
+
+flowline = 'Exp/Jakobshavn_flowline.exp';
+
 %% Toggles
 
 smb_scenario = 'ssp245'; % Alternatives: 'ssp245' or 'ssp585'
 melt_rate = 4*365; %Default of 4 m/day, change to whatever you would like
-calving_threshold = 1.25e6; %Default 1.25e6, change to whatever you would like 
+calving_threshold = 1.5e6; %Default 1.5e6, change to whatever you would like 
 
-number_of_years = 75; %Length of simulation from 2024
+number_of_years = 10; %Length of simulation from 2024
 
 run_name = 'jakobshavn_ssp245_melt4_calving1e7';
 
 %% Transient run - do not edit this section
 
-load('./Outputs/Jakobshavn_Spinup.mat');
+load('./Model_Data/Jakobshavn_Spinup.mat');
 md = transientrestart(md);
 
 
@@ -94,14 +98,14 @@ else
 %dont touch the spclevelset, just keep what is from the previous model and do nothing here
 end
 
-if icelandspc == 1
-md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
-pos = find_iceLandBoundary(md, 1); %1=is2D
-md.levelset.spclevelset(pos)=-1;
-end
+% if icelandspc == 1
+% md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
+% pos = find_iceLandBoundary(md, 1); %1=is2D
+% md.levelset.spclevelset(pos)=-1;
+% end
 
 md.levelset.kill_icebergs=1;
-%md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
+md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)
 
 %Basal Melt options
 % Fixed melt
@@ -115,16 +119,26 @@ md.basalforcings.groundedice_melting_rate = zeros(md.mesh.numberofvertices,1);
 md.basalforcings.geothermalflux=interpSeaRISE_new(md.mesh.x,md.mesh.y,'bheatflx');
 
 %Define calving rate and melt rate (only effective if ismovingfront==1)
-md.frontalforcings.meltingrate=melt_rate*ones(md.mesh.numberofvertices,1); %only effective if front is grounded
+
+
+melt_year = [(0.2*365)/2 (0.2*365)/2 melt_rate/2 (0.2*365)/2];     %Winter melt 0.6 * 365 Rignot et al. 2016  [(0.6*365) (0.6*365) deep_melt/2 (0.6*365)]; 
+melt_front = repmat(melt_year,md.mesh.numberofvertices,number_of_years);
+melt_base = repmat(melt_year,1,number_of_years);
+melt_time = [];
+
+for i = 2024:(2024+number_of_years-1)
+    melt_time = [melt_time ([0 (1/12)*5 (1/12)*8 (1/12)*11]+ i)];
+end    
+
+melt_front = [melt_front; melt_time];
+md.frontalforcings.meltingrate=melt_front; %only effective if front is grounded
+
 
 
 %Calving options
 md.calving=calvingvonmises(); %activate von mises calving law
-
-md.calving.stress_threshold_floatingice=[md.calving.stress_threshold_floatingice];
-
-md.calving.stress_threshold_groundedice=[md.calving.stress_threshold_groundedice];
-
+md.calving.stress_threshold_floatingice=400e3;
+md.calving.stress_threshold_groundedice=calving_threshold;
 md.calving.min_thickness=50; %m, default NaN
 
 
@@ -135,10 +149,10 @@ md.timestepping = timestepping();
 md.timestepping.time_step = (1/48); % Adaptive test suggested 0.02
 md.settings.output_frequency = 4; %montlhy
 % 	md.settings.output_frequency=1; %1: every tstep; 5: every fifth tstep, etc (for debugging)
-disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
-md.timestepping=timesteppingadaptive();
-md.timestepping.time_step_max=5;
-md.timestepping.time_step_min=0.01;
+% disp(['Setting fixed time step to ' num2str(md.timestepping.time_step) ' yrs'])
+% md.timestepping=timesteppingadaptive();
+% md.timestepping.time_step_max=5;
+% md.timestepping.time_step_min=0.001;
 md.timestepping.start_time = 2024;
 md.timestepping.final_time = md.timestepping.start_time + number_of_years;
 
@@ -166,6 +180,8 @@ md.cluster=generic('name',oshostname,'np',4);
 
 %Solve
 md=solve(md,'Transient');
+
+%md = thinmodel(md,2024:1/12:final_year);
 
 %savemodel(org,md);
 save(['Outputs/' run_name],'md','-v7.3')

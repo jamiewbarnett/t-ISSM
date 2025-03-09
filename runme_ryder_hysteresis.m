@@ -7,7 +7,9 @@
 % (1960-2014) forcing, so starting with an anomaly of 0 will let you know if reverting
 % to a historical climate is enough to regrow the ice tongue.
 % Reading starting point: https://www.nature.com/articles/s41467-022-29529-5
-%%
+
+flowline = 'Exp/ryder_flowline.exp';
+
 %% Toggles
 
 smb_anomaly = 0; % Anomaly added to the mean historical SMB field in mm water equivalent
@@ -15,7 +17,7 @@ melt_rate = 25; %Default of 25 m/yr, change to whatever you would like
 calving_threshold_grounded = 5e5; %Default 5e5, change to whatever you would like 
 calving_threshold_floating = 200e3; %Default 200e3, change to whatever you would like
 
-number_of_years = 100; %Length of simulation from 2024
+number_of_years = 50; %Length of simulation from 2100
 
 run_name = 'ryder_SMB1_melt25_calving5e5_200e3';
 

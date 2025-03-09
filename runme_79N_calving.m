@@ -1,5 +1,5 @@
 %% Project Description
-% Here you can investigate the future of Petermann Glacier.
+% Here you can investigate the future of 79N Glacier.
 % The aim of the projection to to explore the future of the glacier with
 % respect to the choice of calving law. You can choose Von Mises (VM),
 % Eigen calving (EC), Crevasse Depth calving (CD) and a minimum thickness
@@ -24,11 +24,11 @@
 
 % Relevant Papers:
 % Millan et al (2023) - https://www.nature.com/articles/s41467-023-42198-2
-% Hill et al (2021) - https://doi.org/10.1017/jog.2020.97
+% Humber et al (2023) - https://doi.org/10.5194/tc-17-2851-2023
 % Choi et al (2018) - https://doi.org/10.5194/tc-12-3735-2018
 % Wilner et al (2023) - https://doi.org/10.5194/tc-17-4889-2023
 
-flowline = 'Exp/Petermann_flowline.exp';
+flowline = 'Exp/79_flowline.exp';
 
 %% %%%%%%%%%%%%% Toggles %%%%%%%%%%%%%%%%
 % Parameters to play with for the transient simulations
@@ -43,19 +43,19 @@ calving_law = 'CD'; % VM | EIGEN | CD | MT
 smb_scenario = 'ssp245'; % Low Emissions: ssp245 | High Emissions: ssp585
 
 %%%% Melt at the Grounding Line %%%%
-GL_melt = 55; % Default = 55 m/yr
+GL_melt = 45; % Default = 45 m/yr
 
 %%%% Calving Calibrations %%%%
 sigma_floating = 200e3; %Deafult 200e3
-eigen = 60e8; %Default 60e8
+eigen = 2e8; %Default 60e8
 waterH = 0; %Default 0
-minT = 100; %Default 100
+minT = 90; %Default 100
 
 run_name = 'ice_go_byebye'; %Important to name your run well. 
 
 %% %%%%%%%%%%%%%% Code to Run Simulation %%%%%%%%%%%%%%%
 
-load(['Model_Data/Petermann_Spinup_Calving_' calving_law '.mat']); %Load spun-up model 
+load(['Model_Data/79_Spinup_Calving_' calving_law '.mat']); %Load spun-up model 
 
 md = transientrestart(md); %Initialise model from spin up simulations
 
@@ -142,7 +142,16 @@ md=solve(md,'Transient');
 
 %md = thinmodel(md,2025:1/12:final_year); %Produce a montly output
 md.miscellaneous.name = run_name;
-save(['Outputs/Petermann_' run_name],'md','-v7.3');
+save(['Outputs/79N_' run_name],'md','-v7.3');
+
+%Plot some stuff
+plotmodel(md, 'data', md.results.TransientSolution(1).Vel, 'data', md.results.TransientSolution(end).Vel, ...
+    'mask', md.results.TransientSolution(1).MaskIceLevelset<0, 'mask#2-4', md.results.TransientSolution(end).MaskIceLevelset<0, ...
+    'data', md.results.TransientSolution(end).Vel-md.results.TransientSolution(1).Vel,...
+    'data', md.results.TransientSolution(end).Thickness-md.results.TransientSolution(1).Thickness,...
+    'caxis#3-4', [-250 250], 'ncols', 4,'caxis#1-2', [0 max(md.results.TransientSolution(end).Vel)], ...
+    'title','Initial Velocity (m/yr)' , 'title','Final Velocity (m/yr)' , 'title', 'End velocity - Starting velocity (m/yr)', ...
+    'title', 'End thickness - Starting thickness (m)')
 
 
 

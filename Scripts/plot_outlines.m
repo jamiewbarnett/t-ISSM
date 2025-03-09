@@ -36,8 +36,8 @@ maxsurface = 0;
 
 %starting slice
 b = 1;
-%Plot every x timestep
-j = 1; 
+%Plot monthly timestep
+j = 12;  
 
 figure();
 %Make bottom plot for 2d view
@@ -77,6 +77,7 @@ for i = [b:j:ts]
         plot(x_line,y_line,'DisplayName',string(i))
     end
 
+    disp(max(y_line));
     maxsurface = max(maxsurface,max(y_line));
 
     hold on
