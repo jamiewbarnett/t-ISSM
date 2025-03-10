@@ -12,12 +12,12 @@ flowline = 'Exp/ryder_flowline.exp';
 
 %% Toggles
 
-smb_anomaly = 0; % Anomaly added to the mean historical SMB field in mm water equivalent
+smb_anomaly = 5; % Anomaly added to the mean historical SMB field in mm water equivalent
 melt_rate = 25; %Default of 25 m/yr, change to whatever you would like
 calving_threshold_grounded = 5e5; %Default 5e5, change to whatever you would like 
 calving_threshold_floating = 200e3; %Default 200e3, change to whatever you would like
 
-number_of_years = 50; %Length of simulation from 2100
+number_of_years = 2; %Length of simulation from 2100
 
 run_name = 'ryder_SMB1_melt25_calving5e5_200e3';
 
@@ -40,22 +40,25 @@ md.inversion.iscontrol=0;
 
 disp('Reading and interpolating SMB data')
 
-md.smb.mass_balance = [];
-smbMAR = [];
+% md.smb.mass_balance = [];
+% smbMAR = [];
+% 
+% for yy=1:(40*12) % Monthly data
+%     smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
+%     smbMAR = [smbMAR smboutput];
+%     %progress = sprintf('Read %d timesteps out of %d',yy, nyrs_smb*12);
+%     %disp(progress)
+% end
+% 
+% pos=find(smbMAR==-9999);
+% smbMAR(pos)=0.0;
+%       
+% md.smb.mass_balance = (smbMAR+smb_anomaly)/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); 
+% md.smb.mass_balance = mean(md.smb.mass_balance,2);
 
-for yy=1:(40*12) % Monthly data
-    smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, './Model_Data/MARv3.11.3-historical-combined.nc');
-    smbMAR = [smbMAR smboutput];
-    %progress = sprintf('Read %d timesteps out of %d',yy, nyrs_smb*12);
-    %disp(progress)
-end
-
-pos=find(smbMAR==-9999);
-smbMAR(pos)=0.0;
-      
-md.smb.mass_balance = (smbMAR+smb_anomaly)/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); 
-md.smb.mass_balance = mean(md.smb.mass_balance,2);
-
+%Read in pre-interpolated SMB
+load('Model_Data/ryder_SMB.mat');
+md.smb.mass_balance = smb_readin+smb_anomaly;
 
 %Make sure bed is below base
 pos=find(md.geometry.bed>md.geometry.base);

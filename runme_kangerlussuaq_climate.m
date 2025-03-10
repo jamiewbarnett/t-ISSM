@@ -20,7 +20,7 @@ smb_scenario = 'ssp245'; % Alternatives: 'ssp245' or 'ssp585'
 melt_rate = 4*365; %Default of 4 m/day, change to whatever you would like
 calving_threshold = 1e7; %Default 1e7, change to whatever you would like 
 
-number_of_years = 10; %Length of simulation from 2024
+number_of_years = 76; %Length of simulation from 2024
 
 run_name = 'kangerlussuaq_ssp245_melt4_calving1e7';
 
@@ -47,22 +47,26 @@ smbMAR = [];
 
 switch smb_scenario
     case{'ssp245'} 
-        smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        %smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        load('Model_Data/Kanger_SMB_ssp245.mat');
     case{'ssp585'}
-        smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+        %smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+        load('Model_Data/Kanger_SMB_ssp585.mat');
 end
 
-for yy=121:(((2024+number_of_years)-2024)+10)*12 % Monthly data
-    smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
-    smbMAR = [smbMAR smboutput];
-end
+md.smb.mass_balance = smb_readin;
 
-pos=find(smbMAR==-9999);
-smbMAR(pos)=0.0;
-  
-md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
-[2024:1/12:(2024+number_of_years)-(1/12)]]; % Monthly transient forcing
-mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
+% for yy=121:(((2024+number_of_years)-2024)+10)*12 % Monthly data
+%     smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
+%     smbMAR = [smbMAR smboutput];
+% end
+% 
+% pos=find(smbMAR==-9999);
+% smbMAR(pos)=0.0;
+%   
+% md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
+% [2024:1/12:(2024+number_of_years)-(1/12)]]; % Monthly transient forcing
+% mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
 
 %Make sure bed is below base
 pos=find(md.geometry.bed>md.geometry.base);
@@ -78,34 +82,34 @@ md.groundingline.migration='SubelementMigration';
 md.groundingline.melt_interpolation='NoMeltOnPartiallyFloating';
 md.groundingline.friction_interpolation='SubelementFriction1';	
 
-isresetlevelset = 1;
-md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
-%%% Set levelset options %%%
-if isresetlevelset == 1
-md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
-
-%Get mask from BedMachine
-M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
-pos=find(M<2);
-md.mask.ice_levelset(pos)=+1; %set levelset for no-ice vertices
-%remove 0 in ice_levelset (advection will fail if used)
-md.mask.ice_levelset(find(md.mask.ice_levelset==0))=-1;
-
-%make it a signed distance
-md.mask.ice_levelset = reinitializelevelset(md,md.mask.ice_levelset);
-
-% Reset levelset boundary conditions on domain boundary
-md.levelset.spclevelset(find(md.mesh.vertexonboundary)) = md.mask.ice_levelset(find(md.mesh.vertexonboundary));
-else 
-%dont touch the spclevelset, just keep what is from the previous model and do nothing here
-end
-
-icelandspc=0;
-if icelandspc == 1
-md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
-pos = find_iceLandBoundary(md, 1); %1=is2D
-md.levelset.spclevelset(pos)=-1;
-end
+% isresetlevelset = 1;
+% md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
+% %%% Set levelset options %%%
+% if isresetlevelset == 1
+% md.levelset.spclevelset=NaN(md.mesh.numberofvertices,1);
+% 
+% %Get mask from BedMachine
+% M = interpBedmachineGreenland(md.mesh.x,md.mesh.y,'mask','nearest','./Model_Data/BedMachineGreenland-2022-03-17.nc');
+% pos=find(M<2);
+% md.mask.ice_levelset(pos)=+1; %set levelset for no-ice vertices
+% %remove 0 in ice_levelset (advection will fail if used)
+% md.mask.ice_levelset(find(md.mask.ice_levelset==0))=-1;
+% 
+% %make it a signed distance
+% md.mask.ice_levelset = reinitializelevelset(md,md.mask.ice_levelset);
+% 
+% % Reset levelset boundary conditions on domain boundary
+% md.levelset.spclevelset(find(md.mesh.vertexonboundary)) = md.mask.ice_levelset(find(md.mesh.vertexonboundary));
+% else 
+% %dont touch the spclevelset, just keep what is from the previous model and do nothing here
+% end
+% 
+% icelandspc=0;
+% if icelandspc == 1
+% md.levelset.spclevelset=NaN(md.mesh.numberofvertices, 1);
+% pos = find_iceLandBoundary(md, 1); %1=is2D
+% md.levelset.spclevelset(pos)=-1;
+% end
 
 md.levelset.kill_icebergs=1;
 md.levelset.migration_max=10000; % -- maximum allowed migration rate (m/a)

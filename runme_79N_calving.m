@@ -65,26 +65,30 @@ disp('Reading and interpolating SMB data')
 md.smb.mass_balance = [];
 smbMAR = [];
 
-switch smb_scenario %Select SMB scenario
+switch smb_scenario
     case{'ssp245'} 
-        smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        %smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        load('Model_Data/79N_SMB_ssp245.mat');
     case{'ssp585'}
-        smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+        %smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+        load('Model_Data/79N_SMB_ssp585.mat');
 end
 
-smb_startyear = 2024; %Year to begin SMB series. Could be changed...
+md.smb.mass_balance = smb_readin;
 
-for yy=((smb_startyear-2014)*12)+1:((final_year-2014))*12 % Monthly data
-    smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
-    smbMAR = [smbMAR smboutput];
-end
-
-pos=find(smbMAR==-9999);
-smbMAR(pos)=0.0;
-      
-md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
-    [2024:1/12:final_year-(1/12)]]; % Monthly transient forcing
-mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
+% smb_startyear = 2024; %Year to begin SMB series. Could be changed...
+% 
+% for yy=((smb_startyear-2014)*12)+1:((final_year-2014))*12 % Monthly data
+%     smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
+%     smbMAR = [smbMAR smboutput];
+% end
+% 
+% pos=find(smbMAR==-9999);
+% smbMAR(pos)=0.0;
+%       
+% md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
+%     [2024:1/12:final_year-(1/12)]]; % Monthly transient forcing
+% mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
 
 % Calibrated calving laws...
 switch calving_law
@@ -116,7 +120,7 @@ md.timestepping.start_time = 2025;
 md.timestepping.final_time = final_year; 
 md.timestepping.time_step = 1/48;
 md.settings.output_frequency = 4; %Monthly time steps
-md.timestepping.cycle_forcing = 1;
+%md.timestepping.cycle_forcing = 1;
 
 %Output options
 md.transient.requested_outputs={'TotalSmb','SmbMassBalance',...

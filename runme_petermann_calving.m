@@ -40,7 +40,7 @@ final_year = 2100; % Start year is 2025
 calving_law = 'CD'; % VM | EIGEN | CD | MT
 
 %%%% SMB %%%%
-smb_scenario = 'ssp245'; % Low Emissions: ssp245 | High Emissions: ssp585
+smb_scenario = 'ssp585'; % Low Emissions: ssp245 | High Emissions: ssp585
 
 %%%% Melt at the Grounding Line %%%%
 GL_melt = 55; % Default = 55 m/yr
@@ -65,26 +65,30 @@ disp('Reading and interpolating SMB data')
 md.smb.mass_balance = [];
 smbMAR = [];
 
-switch smb_scenario %Select SMB scenario
+switch smb_scenario
     case{'ssp245'} 
-        smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        %smb_file='./Model_Data/MARv3.11.3-ssp245-combined.nc';
+        load('Model_Data/Petermann_SMB_ssp245.mat');
     case{'ssp585'}
-        smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+        %smb_file='./Model_Data/MARv3.11.3-ssp585-combined.nc';
+        load('Model_Data/Petermann_SMB_ssp585.mat');
 end
 
-smb_startyear = 2024; %Year to begin SMB series. Could be changed...
-
-for yy=((smb_startyear-2014)*12)+1:((final_year-2014))*12 % Monthly data
-    smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
-    smbMAR = [smbMAR smboutput];
-end
-
-pos=find(smbMAR==-9999);
-smbMAR(pos)=0.0;
-      
-md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
-    [2024:1/12:final_year-(1/12)]]; % Monthly transient forcing
-mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
+md.smb.mass_balance = smb_readin;
+% 
+% smb_startyear = 2024; %Year to begin SMB series. Could be changed...
+% 
+% for yy=((smb_startyear-2014)*12)+1:((final_year-2014))*12 % Monthly data
+%     smboutput = interpMAR_monthly(md.mesh.x,md.mesh.y,'SMB',yy, smb_file);
+%     smbMAR = [smbMAR smboutput];
+% end
+% 
+% pos=find(smbMAR==-9999);
+% smbMAR(pos)=0.0;
+%       
+% md.smb.mass_balance = [smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice); ...
+%     [2024:1/12:final_year-(1/12)]]; % Monthly transient forcing
+% mean_SMB = mean(smbMAR/1000*12*(md.materials.rho_freshwater/md.materials.rho_ice), 2);
 
 % Calibrated calving laws...
 switch calving_law
